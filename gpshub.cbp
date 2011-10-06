@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="gpshub" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/gpshub" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-std=c++0x" />
+					<Add option="-g" />
+					<Add option="-DDEBUG" />
+				</Compiler>
+				<Linker>
+					<Add library="pthread" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/gpshub" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-std=c++0x" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-std=c++0x" />
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+			<Add directory="include" />
+			<Add directory="src" />
+		</Compiler>
+		<Linker>
+			<Add library="pthread" />
+		</Linker>
+		<Unit filename="include/hubthread/CoordsBroadcastThread.h" />
+		<Unit filename="include/hubthread/CoordsUpdateThread.h" />
+		<Unit filename="include/hubthread/ServerThread.h" />
+		<Unit filename="include/server/CmdPkg.h" />
+		<Unit filename="include/server/CommandHandler.h" />
+		<Unit filename="include/server/CommandServer.h" />
+		<Unit filename="include/server/GpsDataServer.h" />
+		<Unit filename="include/server/Server.h" />
+		<Unit filename="include/socket/Epoll.h" />
+		<Unit filename="include/socket/EpollException.h" />
+		<Unit filename="include/socket/Socket.h" />
+		<Unit filename="include/socket/SocketException.h" />
+		<Unit filename="include/socket/netutil.h" />
+		<Unit filename="include/thread/BlockingQueue.h" />
+		<Unit filename="include/thread/ConditionVariable.h" />
+		<Unit filename="include/thread/Mutex.h" />
+		<Unit filename="include/thread/RwLock.h" />
+		<Unit filename="include/thread/ScopeLock.h" />
+		<Unit filename="include/thread/ScopeLockRd.h" />
+		<Unit filename="include/thread/ScopeLockWr.h" />
+		<Unit filename="include/thread/SyncHashMap.h" />
+		<Unit filename="include/thread/SyncHashSet.h" />
+		<Unit filename="include/thread/SyncMap.h" />
+		<Unit filename="include/thread/SyncSet.h" />
+		<Unit filename="include/thread/Thread.h" />
+		<Unit filename="include/thread/ThreadException.h" />
+		<Unit filename="include/user/Coordinates.h" />
+		<Unit filename="include/user/User.h" />
+		<Unit filename="include/user/UserIdGenerator.h" />
+		<Unit filename="include/user/dstypes.h" />
+		<Unit filename="include/util/CircularBuffer.h" />
+		<Unit filename="include/util/hashmaphelper.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="src/hubthread/CoordsBroadcastThread.cpp" />
+		<Unit filename="src/hubthread/CoordsUpdateThread.cpp" />
+		<Unit filename="src/hubthread/ServerThread.cpp" />
+		<Unit filename="src/main.cpp" />
+		<Unit filename="src/server/CmdPkg.cpp" />
+		<Unit filename="src/server/CommandHandler.cpp" />
+		<Unit filename="src/server/CommandServer.cpp" />
+		<Unit filename="src/server/GpsDataServer.cpp" />
+		<Unit filename="src/socket/Epoll.cpp" />
+		<Unit filename="src/socket/EpollException.cpp" />
+		<Unit filename="src/socket/Socket.cpp" />
+		<Unit filename="src/socket/SocketException.cpp" />
+		<Unit filename="src/socket/netutil.cpp" />
+		<Unit filename="src/thread/ConditionVariable.cpp" />
+		<Unit filename="src/thread/Mutex.cpp" />
+		<Unit filename="src/thread/RwLock.cpp" />
+		<Unit filename="src/thread/ScopeLock.cpp" />
+		<Unit filename="src/thread/ScopeLockRd.cpp" />
+		<Unit filename="src/thread/ScopeLockWr.cpp" />
+		<Unit filename="src/thread/SyncHashMap.cpp" />
+		<Unit filename="src/thread/SyncHashSet.cpp" />
+		<Unit filename="src/thread/SyncMap.cpp" />
+		<Unit filename="src/thread/SyncSet.cpp" />
+		<Unit filename="src/thread/Thread.cpp" />
+		<Unit filename="src/thread/ThreadException.cpp" />
+		<Unit filename="src/user/User.cpp" />
+		<Unit filename="src/user/UserIdGenerator.cpp" />
+		<Unit filename="src/util/CircularBuffer.cpp" />
+		<Extensions>
+			<envvars />
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
