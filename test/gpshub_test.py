@@ -207,9 +207,9 @@ if __name__== "__main__":
         if o in ("-h", "--host"):
             host = a
         elif o in ("-t", "--tcp"):
-            port_cmd = a
+            port_cmd = int(a)
         elif o in ("-u", "--udp"):
-            port_gps = a
+            port_gps = int(a)
         elif o in ("-f", "--file"):
             gps_file = a
         else:
