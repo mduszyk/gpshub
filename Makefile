@@ -65,7 +65,7 @@ DEP_FILES += src/hubthread/CoordsBroadcastThread.d src/hubthread/CoordsUpdateThr
 clean.OBJ += $(Release_target.BIN) $(Release_target.OBJ)
 
 Release_target : Release_target.before $(Release_target.BIN) Release_target.after_always
-Release_target : CFLAGS += -O2 -std=c++0x  -Os
+Release_target : CFLAGS += -O2 -Os
 Release_target : INCLUDES += 
 Release_target : RCFLAGS += 
 Release_target : LDFLAGS += -s   
@@ -92,7 +92,7 @@ DEP_FILES += src/hubthread/CoordsBroadcastThread.d src/hubthread/CoordsUpdateThr
 clean.OBJ += $(Debug_target.BIN) $(Debug_target.OBJ)
 
 Debug_target : Debug_target.before $(Debug_target.BIN) Debug_target.after_always
-Debug_target : CFLAGS += -std=c++0x -g -DDEBUG  -Os
+Debug_target : CFLAGS += -g -DDEBUG -Os
 Debug_target : INCLUDES += 
 Debug_target : RCFLAGS += 
 Debug_target : LDFLAGS +=   

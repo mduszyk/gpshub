@@ -9,6 +9,7 @@
 #include "user/User.h"
 #include "util/CircularBuffer.h"
 #include "server/CmdPkg.h"
+#include "util/log.h"
 
 #define MAX_PKG_LEN 512
 
@@ -26,7 +27,7 @@ CommandServer::~CommandServer() {
 }
 
 void CommandServer::loop() {
-    cout << "CommandServer::loop() start" << endl;
+    LOG_INFO("Starting command server");
 
     tcpSocket->Bind();
     // make socket non blocking
@@ -48,7 +49,7 @@ void CommandServer::loop() {
     try {
         epl->loop();
     } catch (exception& e) {
-        cerr << "CommandServer::loop() epoll loop error: " << e.what() << endl;
+        LOG_ERROR("Epoll loop error: " << e.what());
     }
 
     delete epl;
@@ -66,9 +67,7 @@ void CommandServer::incomingDataClbk(EpollEvent* event) {
 }
 
 void CommandServer::incomingConnection(EpollEvent* event) {
-#ifdef DEBUG
-    cout << "CommandServer::newConnection()" << endl;
-#endif // DEBUG
+    LOG_DEBUG("Connections waiting for accept");
 
     /* We have a notification on the listening socket,
        which means one or more incoming connections. */
@@ -82,7 +81,7 @@ void CommandServer::incomingConnection(EpollEvent* event) {
             if (e.getErrno() == EAGAIN || e.getErrno() == EWOULDBLOCK) {
                 // all incoming connections are processed
             } else {
-                cerr << "CommandServer::incomingConnection() socket accpet error: " << e.what() << ", errno: " << e.getErrno() << endl;
+                LOG_ERROR("Socket accpet error: " << e.what() << ", errno: " << e.getErrno());
             }
             break;
         }
@@ -105,9 +104,7 @@ void CommandServer::incomingConnection(EpollEvent* event) {
 
 
 void CommandServer::incomingData(EpollEvent* event) {
-#ifdef DEBUG
-    cout << "CommandServer::incommingData()" << endl;
-#endif // DEBUG
+    LOG_DEBUG("Incomming data");
 
     /* We have data on the fd waiting to be read. We must read
        whatever data is available completely, if we are running
@@ -121,26 +118,26 @@ void CommandServer::incomingData(EpollEvent* event) {
             if (e.getErrno() == EAGAIN) {
                 // EAGAIN means we have read all
             } else {
-                cerr << "CommandServer::incomingData() socket recv error: " << e.what() << ", errno: " << e.getErrno() << endl;
+                LOG_ERROR("Socket recv error: " << e.what() << ", errno: " << e.getErrno());
             }
             break;
         }
 
         if (n == 0) {
             /* End of file. The remote has closed the connection. */
-#ifdef DEBUG
-            cout << "CommandServer::incommingData() closing connection" << endl;
-#endif // DEBUG
+            User* u = (User*) event->ptr;
+
+            LOG_INFO("User closing connection: " << *u);
 
             if (event->ptr != NULL)
-                cmdHandler->quit((User*) event->ptr);
+                cmdHandler->quit(u);
 
             ((Epoll*)event->epl)->removeEvent(event);
 
             try {
                 event->sock->Close();
             } catch (SocketException& e) {
-                cerr << "CommandServer::incomingData() socket close error: " << e.what() << ", errno: " << e.getErrno() << endl;
+                LOG_ERROR("Socket close error: " << e.what() << ", errno: " << e.getErrno());
             }
 
             delete event->sock;
@@ -156,9 +153,7 @@ void CommandServer::incomingData(EpollEvent* event) {
         event->buf->read(read_buf, 3);
         short pkg_len = toshort(read_buf, 1);
 
-#ifdef DEBUG
-            cout << "CommandServer::incommingData() pkg_len: " << pkg_len << ", buf size: " << event->buf->size() << endl;
-#endif // DEBUG
+        LOG_DEBUG("pkg_len: " << pkg_len << ", buf size: " << event->buf->size());
 
         if (event->buf->size() >= pkg_len) {
             // we have whole package - process it

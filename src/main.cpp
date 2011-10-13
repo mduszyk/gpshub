@@ -10,6 +10,8 @@
 #include "server/CommandHandler.h"
 #include "user/dstypes.h"
 #include "user/UserIdGenerator.h"
+#include "util/log.h"
+
 
 using namespace std;
 
@@ -22,7 +24,7 @@ int main(int argc, char *argv[]) {
         port_gps = argv[2];
     }
 
-    cout << "main() starting gpshub..." << endl;
+    LOG_INFO("Starting gpshub, cmd: " << port_cmd << ", gps: " << port_gps);
 
     // id user map: id -> user
     IdUserMap id_umap;
@@ -47,7 +49,7 @@ int main(int argc, char *argv[]) {
     try {
         cmdsrv.loop();
     } catch (exception& e) {
-        cerr << "main() server loop error: " << e.what() << endl;
+        LOG_ERROR("Server loop error: " << e.what());
         return 1;
     }
 

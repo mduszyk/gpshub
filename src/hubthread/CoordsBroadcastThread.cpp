@@ -4,6 +4,7 @@
 #include "util/hashmaphelper.h"
 #include "hubthread/CoordsBroadcastThread.h"
 #include "socket/netutil.h"
+#include "util/log.h"
 
 using namespace std;
 using namespace __gnu_cxx;
@@ -24,15 +25,12 @@ void CoordsBroadcastThread::run() {
     User* u;
     Coordinates* coords;
 
-
-    cout << "CoordsBroadcastThread::run() start" << endl;
+    LOG_INFO("Starting broadcasting thread");
 
     while (true) {
         int id = uqueue->pull();
         u = id_umap->get(id);
-#ifdef DEBUG
-        cout << "CoordsBroadcastThread::run() pulled user: " << u->getNick() << endl;
-#endif // DEBUG
+        LOG_DEBUG("Pulled user: " << u->getNick());
         if (u == NULL)
             continue;
 
@@ -44,15 +42,12 @@ void CoordsBroadcastThread::run() {
 
             // by design set ready to null after broadcasting
             u->setReady(NULL);
+        } else {
+            LOG_DEBUG("Got null coords");
         }
-#ifdef DEBUG
-        else {
-            cout << "CoordsBroadcastThread: got null coords" << endl;
-        }
-#endif // DEBUG
     }
 
-    cout << "CoordsBroadcastThread::run() end" << endl;
+    LOG_INFO("CoordsBroadcastThread end");
 }
 
 void CoordsBroadcastThread::broadcast(User* u, Coordinates* coords) {
@@ -81,9 +76,7 @@ void CoordsBroadcastThread::broadcast(User* u, Coordinates* coords) {
             }
 
             udpSocket->Sendto(buf_pkg, pkg_len, buddy->getAddrUdpPtr());
-#ifdef DEBUG
-            cout << "CoordsBroadcastThread::broadcast() " << u->getNick() << " -> " << *nick << endl;
-#endif // DEBUG
+            LOG_DEBUG(u->getNick() << " -> " << *nick);
         }
     }
 

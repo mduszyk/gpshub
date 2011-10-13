@@ -1,6 +1,8 @@
 #include <exception>
 #include <iostream>
 #include "hubthread/ServerThread.h"
+#include "util/log.h"
+
 using namespace std;
 
 ServerThread::ServerThread(Server* srv) {
@@ -17,6 +19,6 @@ void ServerThread::run() {
         // run server loop
         this->srv->loop();
     } catch (exception& e) {
-        cerr << "Server loop error: " << e.what() << endl;
+        LOG_ERROR("Server loop error: " << e.what());
     }
 }

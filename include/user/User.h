@@ -41,7 +41,12 @@ class User
         sockaddr_storage addr_udp;
         bool udp_ready;
         Socket* sock;
+        friend std::ostream& operator<<(std::ostream&, const User&);
 
 };
+
+inline std::ostream& operator<<(std::ostream& stream, const User& u) {
+    return stream << u.nick << "(" << u.id << ")";
+}
 
 #endif // USER_H

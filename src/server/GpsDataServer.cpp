@@ -4,6 +4,8 @@
 #include "server/GpsDataServer.h"
 #include "socket/Socket.h"
 #include "socket/netutil.h"
+#include "util/log.h"
+
 using namespace std;
 
 GpsDataServer::GpsDataServer(char* port, IdUserMap* umap, BlockingQueue<int>* uqueue) {
@@ -22,7 +24,7 @@ Socket* GpsDataServer::getUdpSocket() {
 }
 
 void GpsDataServer::loop() {
-    cout << "GpsDataServer::loop start" << endl;
+    LOG_INFO("Starting GPS data server");
 
     udpSocket->Bind();
 
@@ -37,7 +39,7 @@ void GpsDataServer::loop() {
 
     }
 
-    cout << "GpsDataServer::loop end" << endl;
+    LOG_INFO("GPS data server finished working");
 }
 
 void GpsDataServer::initAddrUdp() {
@@ -45,15 +47,13 @@ void GpsDataServer::initAddrUdp() {
 
     User* u = umap->get(id);
     if (u == NULL) {
-        cerr << "GpsDataServer::initAddrUdp() unknown user: " <<  id << endl;
+        LOG_ERROR("Unknown user id: " << id);
         return;
     }
 
     u->setAddrUdp(their_addr);
 
-#ifdef DEBUG
-    cout << "GpsDataServer::initAddrUdp() initialized id: " << id << endl;
-#endif // DEBUG
+    LOG_DEBUG("Initialized user: " << *u);
 }
 
 /*
@@ -61,26 +61,22 @@ Process package carying coordinates:
 int id|int longitude|int latitude[|int altitude]
 */
 void GpsDataServer::processCoordinates() {
-#ifdef DEBUG
-    cout << "GpsDataServer::processCoordinates() len: " <<  n
-         << ", PKG: " <<  toint(buf, 0)
+    LOG_DEBUG("PKG type: " << toint(buf, 0)
+         << ", len: " <<  n
          << " " <<  toint(buf, 4)
-         << " " <<  toint(buf, 8) << endl;
-#endif // DEBUG
+         << " " <<  toint(buf, 8));
 
     int id = toint(buf, 0);
 
     User* u = umap->get(id);
     if (u == NULL) {
-        cerr << "GpsDataServer::processCoordinates() udp not initialized: " <<  id << endl;
+        LOG_ERROR("UDP channel not initialized for user id: " << id);
         return;
     }
 
     // verify user addr
     if (!compare_sockaddr((struct sockaddr *)&their_addr, (struct sockaddr *)u->getAddrUdpPtr())) {
-#ifdef DEBUG
-    cout << "GpsDataServer::processCoordinates() got BAD PACKAGE id: " << id << endl;
-#endif // DEBUG
+        LOG_DEBUG("PKG from unknown addr, user: " << *u);
         return;
     }
 
@@ -91,13 +87,9 @@ void GpsDataServer::processCoordinates() {
         u->getEmpty()->altitude = toint(buf, 12);
     else
         u->getEmpty()->altitude = 0;
-#ifdef DEBUG
-    cout << "GpsDataServer::processCoordinates() update: " << u->getNick() << endl;
-#endif // DEBUG
+    LOG_DEBUG("Position update, user: " << *u);
     if (u->getReady() == NULL) {
-#ifdef DEBUG
-        cout << "GpsDataServer::processCoordinates() ready: " << u->getNick() << endl;
-#endif // DEBUG
+        LOG_DEBUG("Ready for broadcasting position, user: " << *u);
         // set ready slot
         u->setReady(u->getEmpty());
 

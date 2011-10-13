@@ -74,3 +74,4 @@ void User::setSockPtr(Socket* sock) {
 Socket* User::getSockPtr() {
     return sock;
 }
+
