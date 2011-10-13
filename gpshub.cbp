@@ -78,6 +78,9 @@
 		<Unit filename="include/util/hashmaphelper.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
+		<Unit filename="include/util/log.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
 		<Unit filename="src/hubthread/CoordsBroadcastThread.cpp" />
 		<Unit filename="src/hubthread/CoordsUpdateThread.cpp" />
 		<Unit filename="src/hubthread/ServerThread.cpp" />
