@@ -9,7 +9,7 @@
 #include "user/User.h"
 #include "util/CircularBuffer.h"
 #include "server/CmdPkg.h"
-#include "util/log.h"
+#include "log/macros.h"
 
 #define MAX_PKG_LEN 512
 

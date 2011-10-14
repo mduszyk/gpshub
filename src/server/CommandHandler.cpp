@@ -1,7 +1,7 @@
 #include "server/CommandHandler.h"
 #include <iostream>
 #include <string.h>
-#include "util/log.h"
+#include "log/macros.h"
 
 CommandHandler::CommandHandler(IdUserMap* id_umap, NickUserMap* nick_umap, UserIdGenerator* idgen) {
     this->id_umap = id_umap;

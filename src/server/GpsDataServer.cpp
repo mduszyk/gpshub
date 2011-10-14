@@ -4,7 +4,7 @@
 #include "server/GpsDataServer.h"
 #include "socket/Socket.h"
 #include "socket/netutil.h"
-#include "util/log.h"
+#include "log/macros.h"
 
 using namespace std;
 

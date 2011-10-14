@@ -1,7 +1,7 @@
 #include <exception>
 #include <iostream>
 #include "hubthread/ServerThread.h"
-#include "util/log.h"
+#include "log/macros.h"
 
 using namespace std;
 

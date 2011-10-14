@@ -10,7 +10,7 @@
 #include "server/CommandHandler.h"
 #include "user/dstypes.h"
 #include "user/UserIdGenerator.h"
-#include "util/log.h"
+#include "log/macros.h"
 
 
 using namespace std;
@@ -23,6 +23,9 @@ int main(int argc, char *argv[]) {
         port_cmd = argv[1];
         port_gps = argv[2];
     }
+
+    // debug is not compiled with release version
+    FILELog::ReportingLevel() = FILELog::FromString("DEBUG2");
 
     LOG_INFO("Starting gpshub, cmd: " << port_cmd << ", gps: " << port_gps);
 

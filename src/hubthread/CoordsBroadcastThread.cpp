@@ -4,7 +4,7 @@
 #include "util/hashmaphelper.h"
 #include "hubthread/CoordsBroadcastThread.h"
 #include "socket/netutil.h"
-#include "util/log.h"
+#include "log/macros.h"
 
 using namespace std;
 using namespace __gnu_cxx;
