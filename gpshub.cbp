@@ -47,6 +47,8 @@
 		<Unit filename="include/hubthread/CoordsBroadcastThread.h" />
 		<Unit filename="include/hubthread/CoordsUpdateThread.h" />
 		<Unit filename="include/hubthread/ServerThread.h" />
+		<Unit filename="include/log/log.h" />
+		<Unit filename="include/log/macros.h" />
 		<Unit filename="include/server/CmdPkg.h" />
 		<Unit filename="include/server/CommandHandler.h" />
 		<Unit filename="include/server/CommandServer.h" />
@@ -76,9 +78,6 @@
 		<Unit filename="include/user/dstypes.h" />
 		<Unit filename="include/util/CircularBuffer.h" />
 		<Unit filename="include/util/hashmaphelper.h">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="include/util/log.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="src/hubthread/CoordsBroadcastThread.cpp" />
