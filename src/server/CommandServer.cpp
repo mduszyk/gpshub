@@ -105,7 +105,7 @@ void CommandServer::incomingConnection(EpollEvent* event) {
 
 
 void CommandServer::incomingData(EpollEvent* event) {
-    LOG_DEBUG("Incomming data");
+    LOG_DEBUG("Incomming data: " << event->sock->getHost() << ":" << event->sock->getPort());
 
     /* We have data on the fd waiting to be read. We must read
        whatever data is available completely, if we are running
@@ -126,12 +126,10 @@ void CommandServer::incomingData(EpollEvent* event) {
 
         if (n == 0) {
             /* End of file. The remote has closed the connection. */
-            User* u = (User*) event->ptr;
-
-            LOG_INFO("User closing connection: " << *u);
+            LOG_INFO("Closing connection: " << event->sock->getHost() << ":" << event->sock->getPort());
 
             if (event->ptr != NULL)
-                cmdHandler->quit(u);
+                cmdHandler->quit((User*) event->ptr);
 
             ((Epoll*)event->epl)->removeEvent(event);
 
