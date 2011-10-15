@@ -82,7 +82,7 @@ void CommandServer::incomingConnection(EpollEvent* event) {
             if (e.getErrno() == EAGAIN || e.getErrno() == EWOULDBLOCK) {
                 // all incoming connections are processed
             } else {
-                LOG_ERROR("Socket accpet error: " << e.what() << ", errno: " << e.getErrno());
+                LOG_ERROR("Socket accpet error: " << e.what() << ": " << strerror(e.getErrno()));
             }
             break;
         }
@@ -119,7 +119,7 @@ void CommandServer::incomingData(EpollEvent* event) {
             if (e.getErrno() == EAGAIN) {
                 // EAGAIN means we have read all
             } else {
-                LOG_ERROR("Socket recv error: " << e.what() << ", errno: " << e.getErrno());
+                LOG_ERROR("Socket recv error: " << e.what() << ": " << strerror(e.getErrno()));
             }
             break;
         }
@@ -136,7 +136,7 @@ void CommandServer::incomingData(EpollEvent* event) {
             try {
                 event->sock->Close();
             } catch (SocketException& e) {
-                LOG_ERROR("Socket close error: " << e.what() << ", errno: " << e.getErrno());
+                LOG_ERROR("Socket close error: " << e.what() << ": " << strerror(e.getErrno()));
             }
 
             delete event->sock;
