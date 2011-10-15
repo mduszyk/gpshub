@@ -15,16 +15,20 @@
 
 using namespace std;
 
+#define DEFAULT_TCP "9990"
+#define DEFAULT_UDP "9991"
+#define DEFAULT_LOG_LEVEL "DEBUG2"
+#define DEFAULT_LOG_FILE "stdout"
+
 
 void print_help(char* argv[]);
 void start_gpshub(char* port_cmd, char* port_gps);
 
 int main(int argc, char *argv[]) {
-    // defaults
-    char* port_cmd = "9990";
-    char* port_gps = "9991";
-    char* log_level = "DEBUG2";
-    char* log_file = NULL;
+    char* port_cmd = DEFAULT_TCP;
+    char* port_gps = DEFAULT_UDP;
+    char* log_level = DEFAULT_LOG_LEVEL;
+    char* log_file = DEFAULT_LOG_FILE;
 
     static struct option long_options[] = {
        {"tcp",       required_argument, 0, 't'},
@@ -66,8 +70,24 @@ int main(int argc, char *argv[]) {
     // debug is not compiled with release version
     FILELog::ReportingLevel() = FILELog::FromString(log_level);
 
+    FILE* log_fd;
+    if (strcmp("stdout", log_file) == 0) {
+        log_fd = stdout;
+    } else if(strcmp("stderr", log_file) == 0) {
+        log_fd = stderr;
+    } else {
+        log_fd = fopen(log_file, "w");
+        if (log_fd == NULL) {
+            fprintf(stderr, "ERROR: Can't open log file %s", log_file);
+            exit(1);
+        }
+    }
+    // set logger's output file
+    Output2FILE::Stream() = log_fd;
+
     start_gpshub(port_cmd, port_gps);
 
+    fclose(log_fd);
     exit(0);
 }
 
@@ -75,13 +95,20 @@ void print_help(char* argv[]) {
     printf("Usage:\n");
     printf("%s [-t TCP_PORT] [-u UDP_PORT] [-l LOG_LEVEL] [-f LOG_FILE] [-h]\n\n", argv[0]);
 
-    printf("  -t, --tcp\n    set tcp port\n");
-    printf("  -u, --udp\n    set udp port\n\n");
+    printf("  -t, --tcp\n");
+    printf("      set tcp port, default: %s\n", DEFAULT_TCP);
+    printf("  -u, --udp\n");
+    printf("      set udp port, default: %s\n\n", DEFAULT_UDP);
 
-    printf("  -l, --log-level\n    set min log level\n");
-    printf("  -f, --log-file\n    set log output file\n\n");
+    printf("  -l, --log-level\n");
+    printf("      set max log level, default: %s\n", DEFAULT_LOG_LEVEL);
+    printf("      available levels: ERROR, WARNING, INFO, DEBUG, DEBUG1, DEBUG2\n");
+    printf("  -f, --log-file\n");
+    printf("      set log output file, default: %s\n", DEFAULT_LOG_FILE);
+    printf("      accepted values: stdout, stderr, filename\n\n");
 
-    printf("  -h, --help\n    print help\n\n");
+    printf("  -h, --help\n");
+    printf("      print this help\n\n");
 
     exit(1);
 }
