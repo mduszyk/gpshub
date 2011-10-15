@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
     // debug is not compiled with release version
     FILELog::ReportingLevel() = FILELog::FromString("DEBUG2");
 
-    LOG_INFO("Starting gpshub, cmd: " << port_cmd << ", gps: " << port_gps);
+    LOG_INFO("Starting gpshub...");
 
     // id user map: id -> user
     IdUserMap id_umap;

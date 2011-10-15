@@ -24,7 +24,7 @@ Socket* GpsDataServer::getUdpSocket() {
 }
 
 void GpsDataServer::loop() {
-    LOG_INFO("Starting GPS data server");
+    LOG_INFO("Starting GPS data server, port: " << udpSocket->getPort());
 
     udpSocket->Bind();
 

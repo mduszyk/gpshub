@@ -5,6 +5,8 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <string.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
 
 using namespace std;
 
@@ -20,8 +22,19 @@ Socket::Socket(int sfd) {
     socket is going to be open when Bind or Connect is invoked.
 */
 Socket::Socket(char* host, char* port, int socktype) {
-    this->host = host;
-    this->port = port;
+    this->host = NULL;
+    this->port = NULL;
+    if (host != NULL) {
+        int n = strlen(host) + 1;
+        this->host = (char*) malloc(n);
+        memcpy(this->host, host, n);
+    }
+    if (port != NULL) {
+        int n = strlen(port) + 1;
+        this->port = (char*) malloc(n);
+        memcpy(this->port, port, n);
+    }
+
     this->socktype = socktype;
     // set socket fd to -1 which means that socket isn't open
     this->sockfd = -1;
@@ -191,8 +204,27 @@ Socket* Socket::Accept() throw(SocketException) {
     if (new_fd == -1) {
         throw SocketException("accept failed, try to check if socket is binded and listening");
     }
+
     Socket* sock = new Socket(new_fd);
-    // TODO set host and port on sock
+    if (new_addr.ss_family == AF_INET) {
+        // IPv4
+        char* host = (char*) malloc(INET_ADDRSTRLEN);
+        char* port = (char*) malloc(6);
+        struct sockaddr_in* sa = (struct sockaddr_in*)&new_addr;
+        inet_ntop(AF_INET, &(sa->sin_addr), host, INET_ADDRSTRLEN);
+        sprintf(port, "%u", sa->sin_port);
+        sock->setHost(host);
+        sock->setPort(port);
+    } else if (new_addr.ss_family == AF_INET6) {
+        // IPv6
+        char* host = (char*) malloc(INET6_ADDRSTRLEN);
+        char* port = (char*) malloc(6);
+        struct sockaddr_in6* sa6 = (sockaddr_in6*) &new_addr;
+        inet_ntop(AF_INET6, &(sa6->sin6_addr), host, INET6_ADDRSTRLEN);
+        sprintf(port, "%u", sa6->sin6_port);
+        sock->setHost(host);
+        sock->setPort(port);
+    }
 
     return sock;
 }
@@ -207,4 +239,20 @@ void Socket::Close() throw(SocketException) {
 
 int Socket::getFd() {
     return sockfd;
+}
+
+char*& Socket::getHost() {
+    return host;
+}
+
+char*& Socket::getPort() {
+    return port;
+}
+
+void Socket::setHost(char* host) {
+    this->host = host;
+}
+
+void Socket::setPort(char* port) {
+    this->port = port;
 }

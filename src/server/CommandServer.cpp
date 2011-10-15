@@ -27,7 +27,7 @@ CommandServer::~CommandServer() {
 }
 
 void CommandServer::loop() {
-    LOG_INFO("Starting command server");
+    LOG_INFO("Starting command server, port: " << tcpSocket->getPort());
 
     tcpSocket->Bind();
     // make socket non blocking
@@ -77,6 +77,7 @@ void CommandServer::incomingConnection(EpollEvent* event) {
     while (true) {
         try {
             s = event->sock->Accept();
+             LOG_DEBUG("Accepted connection: " << s->getHost() << ":" << s->getPort());
         } catch (SocketException& e) {
             if (e.getErrno() == EAGAIN || e.getErrno() == EWOULDBLOCK) {
                 // all incoming connections are processed

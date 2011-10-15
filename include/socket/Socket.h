@@ -22,9 +22,13 @@ class Socket
         void SendAll(char* buf, int* len) throw(SocketException);
         void Close() throw(SocketException);
         int getFd();
+        char*& getHost();
+        char*& getPort();
 
     protected:
         Socket(int sfd);
+        void setHost(char* host);
+        void setPort(char* port);
 
     private:
         int sockfd;
