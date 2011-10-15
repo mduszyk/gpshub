@@ -43,6 +43,8 @@ Socket::Socket(char* host, char* port, int socktype) {
 Socket::~Socket() {
     //freeaddrinfo(servinfo);
     close(sockfd);
+    free(host);
+    free(port);
 }
 
 void Socket::Getaddrinfo() throw(SocketException) {
