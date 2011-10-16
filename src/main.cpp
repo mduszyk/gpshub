@@ -15,6 +15,8 @@
 
 using namespace std;
 
+#define VERSION "0.7 beta"
+
 #define DEFAULT_TCP "9990"
 #define DEFAULT_UDP "9991"
 #define DEFAULT_LOG_LEVEL "DEBUG2"
@@ -22,6 +24,7 @@ using namespace std;
 
 
 void print_help(char* argv[]);
+void print_version();
 void start_gpshub(char* port_cmd, char* port_gps);
 
 int main(int argc, char *argv[]) {
@@ -35,6 +38,7 @@ int main(int argc, char *argv[]) {
        {"udp",       required_argument, 0, 'u'},
        {"log-level", required_argument, 0, 'l'},
        {"log-file",  required_argument, 0, 'f'},
+       {"version",   no_argument,       0, 'v'},
        {"help",      no_argument,       0, 'h'},
        {0, 0, 0, 0}
     };
@@ -42,7 +46,7 @@ int main(int argc, char *argv[]) {
     int option_index = 0;
 
     int opt;
-    while((opt = getopt_long(argc, argv, "t:u:l:f:h", long_options, &option_index)) != -1)
+    while((opt = getopt_long(argc, argv, "t:u:l:f:vh", long_options, &option_index)) != -1)
         switch(opt) {
             case 't':
                 port_cmd = optarg;
@@ -55,6 +59,9 @@ int main(int argc, char *argv[]) {
                 break;
             case 'f':
                 log_file = optarg;
+                break;
+            case 'v':
+                print_version();
                 break;
             case 'h':
                 print_help(argv);
@@ -107,10 +114,22 @@ void print_help(char* argv[]) {
     printf("      set log output file, default: %s\n", DEFAULT_LOG_FILE);
     printf("      accepted values: stdout, stderr, filename\n\n");
 
+    printf("  -v, --version\n");
+    printf("      print version\n\n");
+
     printf("  -h, --help\n");
     printf("      print this help\n\n");
 
     exit(1);
+}
+
+void print_version() {
+#ifdef DEBUG
+    printf("%s DEBUG\n", VERSION);
+#else
+    printf("%s\n", VERSION);
+#endif
+    exit(0);
 }
 
 void start_gpshub(char* port_cmd, char* port_gps) {
