@@ -101,7 +101,7 @@ void print_help(char* argv[]) {
     printf("      set udp port, default: %s\n\n", DEFAULT_UDP);
 
     printf("  -l, --log-level\n");
-    printf("      set max log level, default: %s\n", DEFAULT_LOG_LEVEL);
+    printf("      set log level, default: %s\n", DEFAULT_LOG_LEVEL);
     printf("      available levels: ERROR, WARNING, INFO, DEBUG, DEBUG1, DEBUG2\n");
     printf("  -f, --log-file\n");
     printf("      set log output file, default: %s\n", DEFAULT_LOG_FILE);
