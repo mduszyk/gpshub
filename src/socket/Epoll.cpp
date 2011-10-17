@@ -41,11 +41,11 @@ void Epoll::addEvent(EpollEvent* eev, int eflags) throw(EpollException) {
 }
 
 /**
-Removes event from epoll and deletes EpollEvent from heap.
+    Removes event from epoll and deletes EpollEvent from heap.
 
-In kernel versions before 2.6.9, the EPOLL_CTL_DEL operation required
-a non-NULL pointer in event, even though this argument is ignored.
-Since kernel 2.6.9, event can be specified as NULL when using EPOLL_CTL_DEL.
+    In kernel versions before 2.6.9, the EPOLL_CTL_DEL operation required
+    a non-NULL pointer in event, even though this argument is ignored.
+    ince kernel 2.6.9, event can be specified as NULL when using EPOLL_CTL_DEL.
 */
 void Epoll::removeEvent(EpollEvent* eev) throw(EpollException) {
     int s = epoll_ctl(efd, EPOLL_CTL_DEL, eev->sock->getFd(), &event);
