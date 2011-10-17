@@ -1,12 +1,16 @@
 #include "server/CommandHandler.h"
 #include <iostream>
 #include <string.h>
+#include <time.h>
 #include "log/macros.h"
 
 CommandHandler::CommandHandler(IdUserMap* id_umap, NickUserMap* nick_umap, UserIdGenerator* idgen) {
     this->id_umap = id_umap;
     this->nick_umap = nick_umap;
     this->idgen = idgen;
+    // initialize random seed
+    srand(time(NULL));
+    //srand(time(NULL) + rand());
 }
 
 CommandHandler::~CommandHandler() {
@@ -81,6 +85,14 @@ void CommandHandler::registerNick(CmdPkg* pkg, EpollEvent* event) {
     pkg_ok.setInt(1, id);
     LOG_DEBUG("Sending ACK, len: " << pkg_ok.getLen());
     event->sock->Send(pkg_ok.getBytes(), pkg_ok.getLen());
+
+    // send init udp request
+    int token = rand();
+    usr->setToken(token);
+    CmdPkg init_udp(CmdPkg::INITIALIZE_UDP, 7);
+    init_udp.setInt(0, token);
+    LOG_DEBUG("Sending init udp request, token: " << token);
+    event->sock->Send(init_udp.getBytes(), init_udp.getLen());
 
 }
 

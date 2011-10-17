@@ -27,6 +27,7 @@ class GpsDataServer : public Server {
         int n;
         void processCoordinates();
         void initAddrUdp();
+        void sendUdpInitAck(User* u, char status);
 
 };
 

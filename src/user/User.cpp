@@ -75,3 +75,10 @@ Socket* User::getSockPtr() {
     return sock;
 }
 
+int User::getToken() {
+    return token;
+}
+
+void User::setToken(int token) {
+    this->token = token;
+}

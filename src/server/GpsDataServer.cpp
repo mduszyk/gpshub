@@ -2,6 +2,7 @@
 #include <netinet/in.h>
 #include <iostream>
 #include "server/GpsDataServer.h"
+#include "server/CmdPkg.h"
 #include "socket/Socket.h"
 #include "socket/netutil.h"
 #include "log/macros.h"
@@ -31,7 +32,7 @@ void GpsDataServer::loop() {
     while(listen) {
         n = udpSocket->Recvfrom(buf, buf_len - 1, &their_addr);
 
-        if (n == 4)
+        if (n == 8)
             initAddrUdp();
 
         if (n == 12 || n == 16)
@@ -44,6 +45,7 @@ void GpsDataServer::loop() {
 
 void GpsDataServer::initAddrUdp() {
     int id = toint(buf, 0);
+    int token = toint(buf, 4);
 
     User* u = umap->get(id);
     if (u == NULL) {
@@ -51,14 +53,30 @@ void GpsDataServer::initAddrUdp() {
         return;
     }
 
+    LOG_DEBUG("got token: " << token << ", user's token: " << u->getToken());
+    if (token != u->getToken()) {
+        LOG_ERROR("Init package with bad token, user id: " << id);
+        sendUdpInitAck(u, 0);
+        return;
+    }
+
+    // TODO verify ip address TCP vs UDP (ip should be the same)
+
     u->setAddrUdp(their_addr);
 
     LOG_DEBUG("Initialized user: " << *u);
+    sendUdpInitAck(u, 1);
+}
+
+void GpsDataServer::sendUdpInitAck(User* u, char status) {
+    CmdPkg ack(CmdPkg::INITIALIZE_UDP_ACK, 4);
+    ack.getData()[0] = status;
+    u->getSockPtr()->Send(ack.getBytes(), ack.getLen());
 }
 
 /*
-Process package carying coordinates:
-int id|int longitude|int latitude[|int altitude]
+    Process package carying coordinates:
+    int id|int longitude|int latitude[|int altitude]
 */
 void GpsDataServer::processCoordinates() {
     LOG_DEBUG("PKG type: " << toint(buf, 0)

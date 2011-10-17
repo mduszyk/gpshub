@@ -29,10 +29,13 @@ class User
         bool isUdpReady();
         void setSockPtr(Socket* sock);
         Socket* getSockPtr();
+        int getToken();
+        void setToken(int token);
 
     private:
         int id;
         char* nick;
+        int token;
         BuddiesSet buddies;
         Coordinates* slot1;
         Coordinates* slot2;

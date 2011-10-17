@@ -31,9 +31,11 @@ class GpsChannel:
         # default timeout in secs
         #self.sock.settimeout(1.0)
     
-    def init_udp(self):
+    def init_udp(self, token):
+        tkn = bytes(c_uint32(socket.htonl(token)))
         ba = bytearray()
         ba.extend(self.uid)
+        ba.extend(tkn)
         self.sock.send(ba)
     
     def send_pos(self, pos):
@@ -105,21 +107,23 @@ class CommandChannel:
     
     def read(self):
         try:
-            pkg_bytes = self.sock.recv(4096)
-            if pkg_bytes is not None and len(pkg_bytes) > 0:
-                return self.__decode_pkg(pkg_bytes)
+            header = self.sock.recv(3)
+            if header is not None and len(header) > 0:
+                pkg = dict()
+                pkg['header'] = header
+                pkg['type'] = header[0]
+                pkg['len'] = struct.unpack('!H', header[1:3])[0]
+                pkg['data'] = self.sock.recv(pkg['len'] - 3)
+                return self.__decode_pkg(pkg)
         except socket.timeout:
             pass
         return None
     
-    def __decode_pkg(self, pkg_bytes):
-        pkg = dict()
-        pkg['type'] = pkg_bytes[0]
-        pkg['len'] = struct.unpack('!H', pkg_bytes[1:3])[0]
-        pkg['bytes'] = pkg_bytes
-        
+    def __decode_pkg(self, pkg):
         {CommandChannel.REGISTER_NICK_ACK: self.__decode_nick_ack,
          CommandChannel.BUDDIES_IDS: self.__decode_buddies_ids,
+         CommandChannel.INITIALIZE_UDP: self.__decode_initialize_udp,
+         CommandChannel.INITIALIZE_UDP_ACK: self.__decode_initialize_udp_ack,
         }.get(pkg['type'], self.__unknown_pkg)(pkg)
 
         return pkg
@@ -128,24 +132,31 @@ class CommandChannel:
         pkg['unknown'] = 1
         
     def __decode_nick_ack(self, pkg):
-        pkg['status'] = pkg['bytes'][3]
+        pkg['status'] = pkg['data'][0]
         if pkg['status'] == 1:
-            pkg['userid'] = struct.unpack('!I', pkg['bytes'][4:8])[0]
+            pkg['userid'] = struct.unpack('!I', pkg['data'][1:5])[0]
     
     def __decode_buddies_ids(self, pkg):
-        offset = 3
+        offset = 0
         buddies = dict();
-        while offset < pkg['len']:
-            uid = struct.unpack('!I', pkg['bytes'][offset : offset + 4])[0]
+        data_len = pkg['len'] - 3
+        while offset < data_len:
+            uid = struct.unpack('!I', pkg['data'][offset : offset + 4])[0]
             offset += 4
             i = offset
-            while i < pkg['len'] and pkg['bytes'][i] != 0:
+            while i < data_len and pkg['data'][i] != 0:
                 i += 1
             n = i - offset
-            buddy = str(struct.unpack('!' + str(n) + 's', pkg['bytes'][offset:i])[0], 'latin1')
+            buddy = str(struct.unpack('!' + str(n) + 's', pkg['data'][offset:i])[0], 'latin1')
             offset = i + 1
             buddies[uid] = buddy
         pkg['buddies'] = buddies
+
+    def __decode_initialize_udp(self, pkg):
+        pkg['token'] = struct.unpack('!I', pkg['data'][0:4])[0]
+	
+    def __decode_initialize_udp_ack(self, pkg):
+        pkg['status'] = pkg['data'][0]
 
 class GpsChannelListener(Thread):
 
@@ -224,12 +235,13 @@ if __name__== "__main__":
     print("TCP:", port_cmd)
     print("UDP:", port_gps)
     print()
+    
         
     cmd_channel = CommandChannel(host, port_cmd)
     # set socket timeout to turn off complete blocking on recv
     cmd_channel.sock.settimeout(1.0)
-    cmd_channel.register_nick(nick)
     
+    cmd_channel.register_nick(nick)
     pkg = cmd_channel.read()
     if pkg['type'] == CommandChannel.REGISTER_NICK_ACK and pkg['status'] == 1:
         userid = pkg['userid']
@@ -237,14 +249,22 @@ if __name__== "__main__":
     else:
         print('ERROR couldn\'t register nick')
         exit(1)
-        
+    
+    pkg = cmd_channel.read()
+    if pkg['type'] == CommandChannel.INITIALIZE_UDP:
+        token = pkg['token']
+        print('CMD', pkg)
+    else:
+        print('ERROR server haven\'t sent init udp token')
+        exit(1)
+	
     cmd_listener = CmdChannelListener(cmd_channel)
     cmd_listener.start()
     
     cmd_channel.add_buddies(buddies)
 
     gps_channel = GpsChannel(host, port_gps, userid)
-    gps_channel.init_udp()
+    gps_channel.init_udp(token)
     
     # receive positions
     gps_listener = GpsChannelListener(gps_channel, nick)
