@@ -102,12 +102,18 @@ class CmdChannelListener(Thread):
         Thread.__init__(self)
         self.cmd_channel = cmd_channel
         self.__read = True
+        self._observers = []
+
+    def add_observer(self, observer):
+        self._observers.append(observer)
 
     def run(self):
         while self.__read:
             pkg = self.cmd_channel.read()
             if self.__read and pkg is not None:
-                print('CMD', pkg)
+                for observer in self._observers:
+                    observer(pkg)
+
     
     def stop(self):
         self.__read = False

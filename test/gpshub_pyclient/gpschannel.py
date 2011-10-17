@@ -58,13 +58,17 @@ class GpsChannelListener(Thread):
         self.gps_channel = gps_channel
         self.__read = True
         self.nick = nick
+        self._observers = []
+    
+    def add_observer(self, observer):
+        self._observers.append(observer)
 
     def run(self):
         while self.__read:
             pkg = self.gps_channel.read()
             if self.__read and pkg is not None:
-                print(self.nick, self.gps_channel.userid,
-                    'PKG:', pkg['uid'], pkg['lon'], pkg['lat'])
+                for observer in self._observers:
+                    observer(pkg)
     
     def stop(self):
         self.__read = False

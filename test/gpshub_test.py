@@ -18,6 +18,11 @@ def read_gps_positions(file_name):
                 # yield tuple (longitude, latitude)
                 yield (int(a[5].replace('.', '')),  int(a[3].replace('.', '')))
 
+def print_cmd_pkg(pkg):
+	print('CMDPKG', pkg)
+
+def print_gps_pkg(pkg):
+    print('GPSPKG', pkg['uid'], pkg['lon'], pkg['lat'])
 
 if __name__== "__main__":
     try:
@@ -69,7 +74,7 @@ if __name__== "__main__":
     pkg = cmd_channel.read()
     if pkg['type'] == CmdChannel.REGISTER_NICK_ACK and pkg['status'] == 1:
         userid = pkg['userid']
-        print('CMD', pkg)
+        print_cmd_pkg(pkg)
     else:
         print('ERROR couldn\'t register nick')
         exit(1)
@@ -77,12 +82,13 @@ if __name__== "__main__":
     pkg = cmd_channel.read()
     if pkg['type'] == CmdChannel.INITIALIZE_UDP:
         token = pkg['token']
-        print('CMD', pkg)
+        print_cmd_pkg(pkg)
     else:
         print('ERROR server haven\'t sent init udp token')
         exit(1)
 	
     cmd_listener = CmdChannelListener(cmd_channel)
+    cmd_listener.add_observer(print_cmd_pkg)
     cmd_listener.start()
     
     cmd_channel.add_buddies(buddies)
@@ -92,6 +98,7 @@ if __name__== "__main__":
     
     # receive positions
     gps_listener = GpsChannelListener(gps_channel, nick)
+    gps_listener.add_observer(print_gps_pkg)
     #gps_listener.daemon = True
     gps_listener.start()
     
