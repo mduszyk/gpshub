@@ -597,11 +597,12 @@
 	"server/CmdPkg.h"
 	"log/macros.h"
 
-1318847057 source:/home/mad/workspace/gpshub/src/server/GpsDataServer.cpp
+1318848582 source:/home/mad/workspace/gpshub/src/server/GpsDataServer.cpp
 	<sys/socket.h>
 	<netinet/in.h>
 	<iostream>
 	"server/GpsDataServer.h"
+	"server/CmdPkg.h"
 	"socket/Socket.h"
 	"socket/netutil.h"
 	"log/macros.h"

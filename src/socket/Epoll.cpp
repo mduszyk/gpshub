@@ -1,6 +1,7 @@
 #include "socket/Epoll.h"
 #include "socket/EpollException.h"
 #include <iostream>
+#include "log/macros.h"
 using namespace std;
 
 
@@ -68,7 +69,7 @@ void Epoll::loop() throw(EpollException) {
     while (1) {
         int n, i;
 
-        n = epoll_wait (efd, events, events_size, -1);
+        n = epoll_wait(efd, events, events_size, -1);
         for (i = 0; i < n; i++) {
             if ((events[i].events & EPOLLERR) ||
                 (events[i].events & EPOLLHUP) ||
@@ -76,7 +77,7 @@ void Epoll::loop() throw(EpollException) {
             {
                 /* An error has occured on this fd, or the socket is not
                    ready for reading (why were we notified then?) */
-                cerr << "Epoll::loop() epoll error" << endl;
+                LOG_WARN("An error has occured on epoll monitored fd - closing fd");
                 close( ((EpollEvent*)events[i].data.ptr)->sock->getFd() );
                 delete (EpollEvent*) events[i].data.ptr;
                 continue;
