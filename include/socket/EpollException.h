@@ -2,6 +2,7 @@
 #define EPOLLEXCEPTION_H
 
 #include <stdexcept>
+#include <errno.h>
 using namespace std;
 
 class EpollException : public std::runtime_error {
@@ -9,6 +10,10 @@ class EpollException : public std::runtime_error {
     public:
         EpollException(char* message);
         EpollException(const string& message);
+        int getErrno();
+
+    private:
+        int Errno;
 
 };
 

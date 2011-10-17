@@ -48,8 +48,8 @@ void CommandServer::loop() {
 
     try {
         epl->loop();
-    } catch (exception& e) {
-        LOG_ERROR("Epoll loop error: " << e.what());
+    } catch (EpollException& e) {
+        LOG_ERROR("Epoll loop error: " << e.what() << ": " << strerror(e.getErrno()));
     }
 
     delete epl;

@@ -1,9 +1,13 @@
 #include "socket/EpollException.h"
 
 EpollException::EpollException(char* message) : std::runtime_error(message) {
-    //ctor
+    this->Errno = errno;
 }
 
 EpollException::EpollException(const string& message) : std::runtime_error(message) {
-    //ctor2
+    this->Errno = errno;
+}
+
+int EpollException::getErrno() {
+    return Errno;
 }

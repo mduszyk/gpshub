@@ -70,6 +70,9 @@ void Epoll::loop() throw(EpollException) {
         int n, i;
 
         n = epoll_wait(efd, events, events_size, -1);
+        if (n == -1) {
+            throw EpollException("error waiting for event");
+        }
         for (i = 0; i < n; i++) {
             if ((events[i].events & EPOLLERR) ||
                 (events[i].events & EPOLLHUP) ||
