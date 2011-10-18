@@ -10,10 +10,10 @@ class Thread
       Thread();
       virtual ~Thread();
       void start();
+
    protected:
       virtual void run();
       static void * entryPoint(void*);
-   private:
       pthread_t threadId;
 
 };

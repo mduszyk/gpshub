@@ -21,32 +21,35 @@ using namespace std;
 #define DEFAULT_UDP "9991"
 #define DEFAULT_LOG_LEVEL "DEBUG2"
 #define DEFAULT_LOG_FILE "stdout"
+#define DEFAULT_THREAD_NUM 1
 
 
 void print_help(char* argv[]);
 void print_version();
-void start_gpshub(char* port_cmd, char* port_gps);
+void start_gpshub(char* port_cmd, char* port_gps, int num_thread);
 
 int main(int argc, char *argv[]) {
     char* port_cmd = DEFAULT_TCP;
     char* port_gps = DEFAULT_UDP;
     char* log_level = DEFAULT_LOG_LEVEL;
     char* log_file = DEFAULT_LOG_FILE;
+    int thread_num = DEFAULT_THREAD_NUM;
 
     static struct option long_options[] = {
-       {"tcp",       required_argument, 0, 't'},
-       {"udp",       required_argument, 0, 'u'},
-       {"log-level", required_argument, 0, 'l'},
-       {"log-file",  required_argument, 0, 'f'},
-       {"version",   no_argument,       0, 'v'},
-       {"help",      no_argument,       0, 'h'},
+       {"tcp",           required_argument, 0, 't'},
+       {"udp",           required_argument, 0, 'u'},
+       {"log-level",     required_argument, 0, 'l'},
+       {"log-file",      required_argument, 0, 'f'},
+       {"thread-number", required_argument, 0, 'n'},
+       {"version",       no_argument,       0, 'v'},
+       {"help",          no_argument,       0, 'h'},
        {0, 0, 0, 0}
     };
     // getopt_long stores the option index here
     int option_index = 0;
 
     int opt;
-    while((opt = getopt_long(argc, argv, "t:u:l:f:vh", long_options, &option_index)) != -1)
+    while((opt = getopt_long(argc, argv, "t:u:l:f:n:vh", long_options, &option_index)) != -1)
         switch(opt) {
             case 't':
                 port_cmd = optarg;
@@ -59,6 +62,13 @@ int main(int argc, char *argv[]) {
                 break;
             case 'f':
                 log_file = optarg;
+                break;
+            case 'n':
+                thread_num = atoi(optarg);
+                if (thread_num < 1) {
+                    fprintf(stderr, "ERROR: Invalid thread number parameter: '%s'\n", optarg);
+                    print_help(argv);
+                }
                 break;
             case 'v':
                 print_version();
@@ -92,7 +102,7 @@ int main(int argc, char *argv[]) {
     // set logger's output file
     Output2FILE::Stream() = log_fd;
 
-    start_gpshub(port_cmd, port_gps);
+    start_gpshub(port_cmd, port_gps, thread_num);
 
     fclose(log_fd);
     exit(0);
@@ -114,6 +124,10 @@ void print_help(char* argv[]) {
     printf("      set log output file, default: %s\n", DEFAULT_LOG_FILE);
     printf("      accepted values: stdout, stderr, filename\n\n");
 
+    printf("  -n, --thread-number\n");
+    printf("      set number of consumer threads, default: %d\n", DEFAULT_THREAD_NUM);
+    printf("      accepted values grather than 0\n\n");
+
     printf("  -v, --version\n");
     printf("      print version\n\n");
 
@@ -132,7 +146,7 @@ void print_version() {
     exit(0);
 }
 
-void start_gpshub(char* port_cmd, char* port_gps) {
+void start_gpshub(char* port_cmd, char* port_gps, int thread_num) {
     LOG_INFO("Starting gpshub...");
 
     // id user map: id -> user
@@ -151,8 +165,13 @@ void start_gpshub(char* port_cmd, char* port_gps) {
 
     ServerThread sthread(&gpssrv);
 
-    CoordsBroadcastThread bthread(&id_umap, &nick_umap, &uqueue, gpssrv.getUdpSocket());
-    bthread.start();
+    //CoordsBroadcastThread bthread(&id_umap, &nick_umap, &uqueue, gpssrv.getUdpSocket());
+    //bthread.start();
+    std::vector<CoordsBroadcastThread> bthreads(thread_num,
+        CoordsBroadcastThread(&id_umap, &nick_umap, &uqueue, gpssrv.getUdpSocket()));
+    for (int i = 0; i < thread_num; i++) {
+        bthreads[i].start();
+    }
 
     sthread.start();
     try {

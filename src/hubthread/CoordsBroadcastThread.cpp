@@ -25,12 +25,12 @@ void CoordsBroadcastThread::run() {
     User* u;
     Coordinates* coords;
 
-    LOG_INFO("Starting broadcasting thread");
+    LOG_INFO("Starting broadcasting thread: " << threadId);
 
     while (true) {
         int id = uqueue->pull();
         u = id_umap->get(id);
-        LOG_DEBUG("Pulled user: " << u->getNick());
+        LOG_DEBUG("Thread: " << threadId << ", pulled user: " << u->getNick());
         if (u == NULL)
             continue;
 
@@ -47,7 +47,7 @@ void CoordsBroadcastThread::run() {
         }
     }
 
-    LOG_INFO("CoordsBroadcastThread end");
+    LOG_INFO("CoordsBroadcastThread end: " << threadId);
 }
 
 void CoordsBroadcastThread::broadcast(User* u, Coordinates* coords) {
