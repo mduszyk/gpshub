@@ -43,28 +43,39 @@ void GpsDataServer::loop() {
     LOG_INFO("GPS data server finished working");
 }
 
+/**
+    Process initialize udp package:
+    .-----------------.-------------.
+    | unsigned int id | int token   |
+    '-----------------'-------------'
+*/
 void GpsDataServer::initAddrUdp() {
     int id = toint(buf, 0);
     int token = toint(buf, 4);
 
     User* u = umap->get(id);
     if (u == NULL) {
-        LOG_ERROR("Unknown user id: " << id);
+        LOG_WARN("Init package with unknown user id: " << id);
         return;
     }
 
     LOG_DEBUG("got token: " << token << ", user's token: " << u->getToken());
     if (token != u->getToken()) {
-        LOG_ERROR("Init package with bad token, user id: " << id);
+        LOG_WARN("Init package with bad token, user id: " << id);
         sendUdpInitAck(u, 0);
         return;
     }
 
-    // TODO verify ip address TCP vs UDP (ip should be the same)
+    // verify ip address TCP vs UDP (ip should be the same)
+    if (!ip_equals(u->getSockPtr()->getAddrPtr(), &their_addr)) {
+        LOG_WARN("Init package form bad ip address, user id: " << id);
+        sendUdpInitAck(u, 0);
+        return;
+    }
 
     u->setAddrUdp(their_addr);
 
-    LOG_DEBUG("Initialized user: " << *u);
+    LOG_DEBUG("Initialized udp for user: " << *u);
     sendUdpInitAck(u, 1);
 }
 
@@ -74,9 +85,11 @@ void GpsDataServer::sendUdpInitAck(User* u, char status) {
     u->getSockPtr()->Send(ack.getBytes(), ack.getLen());
 }
 
-/*
+/**
     Process package carying coordinates:
-    int id|int longitude|int latitude[|int altitude]
+    .-----------------.---------------.--------------.----------------.
+    | unsigned int id | int longitude | int latitude | [int altitude] |
+    '-----------------'---------------'--------------'----------------'
 */
 void GpsDataServer::processCoordinates() {
     LOG_DEBUG("PKG type: " << toint(buf, 0)
@@ -92,9 +105,9 @@ void GpsDataServer::processCoordinates() {
         return;
     }
 
-    // verify user addr
-    if (!compare_sockaddr((struct sockaddr *)&their_addr, (struct sockaddr *)u->getAddrUdpPtr())) {
-        LOG_DEBUG("PKG from unknown addr, user: " << *u);
+    // verify if package comes form registered udp socket
+    if (!socket_equals(&their_addr, u->getAddrUdpPtr())) {
+        LOG_WARN("Gps package from unknown address, user: " << *u);
         return;
     }
 

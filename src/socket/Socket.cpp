@@ -88,6 +88,8 @@ void Socket::Bind() throw(SocketException) {
     if (p == NULL) {
         throw SocketException("failed to bind socket");
     }
+    // store sockets addr struct
+    memcpy(&addr, p->ai_addr, p->ai_addrlen);
     freeaddrinfo(servinfo);
 }
 
@@ -115,6 +117,8 @@ void Socket::Connect() throw(SocketException) {
     if (p == NULL) {
         throw SocketException("failed to connect");
     }
+    // store sockets addr struct
+    memcpy(&addr, p->ai_addr, p->ai_addrlen);
     freeaddrinfo(servinfo);
 }
 
@@ -200,19 +204,21 @@ void Socket::Listen() throw(SocketException) {
 }
 
 Socket* Socket::Accept() throw(SocketException) {
-    struct sockaddr_storage new_addr;
-    socklen_t addr_size = sizeof new_addr;
-    int new_fd = accept(sockfd, (struct sockaddr*)&new_addr, &addr_size);
+    sockaddr_storage new_addr;
+    socklen_t addr_size = sizeof addr;
+    int new_fd = accept(sockfd, (struct sockaddr*) &new_addr, &addr_size);
     if (new_fd == -1) {
         throw SocketException("accept failed, try to check if socket is binded and listening");
     }
 
     Socket* sock = new Socket(new_fd);
+    // copy addr struct to new socket
+    memcpy(&sock->addr, &new_addr, addr_size);
     if (new_addr.ss_family == AF_INET) {
         // IPv4
         char* host = (char*) malloc(INET_ADDRSTRLEN);
         char* port = (char*) malloc(6);
-        struct sockaddr_in* sa = (struct sockaddr_in*)&new_addr;
+        struct sockaddr_in* sa = (struct sockaddr_in*) &new_addr;
         inet_ntop(AF_INET, &(sa->sin_addr), host, INET_ADDRSTRLEN);
         sprintf(port, "%u", sa->sin_port);
         sock->setHost(host);
@@ -257,4 +263,8 @@ void Socket::setHost(char* host) {
 
 void Socket::setPort(char* port) {
     this->port = port;
+}
+
+struct sockaddr_storage* Socket::getAddrPtr() {
+    return &this->addr;
 }

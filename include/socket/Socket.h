@@ -24,6 +24,7 @@ class Socket
         int getFd();
         char*& getHost();
         char*& getPort();
+        struct sockaddr_storage* getAddrPtr();
 
     protected:
         Socket(int sfd);
@@ -35,6 +36,7 @@ class Socket
         char* host;
         char* port;
         int socktype;
+        struct sockaddr_storage addr;
         struct addrinfo *servinfo, *p;
         void Getaddrinfo() throw(SocketException);
 

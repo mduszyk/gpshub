@@ -102,8 +102,12 @@ void CommandServer::incomingConnection(EpollEvent* event) {
     }
 }
 
-
-
+/**
+    Process command package:
+    .---------------.-----------------------.------------.
+    | char pkg_type | unsigned short length | char* data |
+    '---------------'-----------------------'------------'
+*/
 void CommandServer::incomingData(EpollEvent* event) {
     LOG_DEBUG("Incomming data: " << event->sock->getHost() << ":" << event->sock->getPort());
 
