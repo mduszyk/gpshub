@@ -72,6 +72,7 @@
 		<Unit filename="include/thread/SyncSet.h" />
 		<Unit filename="include/thread/Thread.h" />
 		<Unit filename="include/thread/ThreadException.h" />
+		<Unit filename="include/thread/ThreadSyncException.h" />
 		<Unit filename="include/user/Coordinates.h" />
 		<Unit filename="include/user/User.h" />
 		<Unit filename="include/user/UserIdGenerator.h" />
@@ -105,6 +106,7 @@
 		<Unit filename="src/thread/SyncSet.cpp" />
 		<Unit filename="src/thread/Thread.cpp" />
 		<Unit filename="src/thread/ThreadException.cpp" />
+		<Unit filename="src/thread/ThreadSyncException.cpp" />
 		<Unit filename="src/user/User.cpp" />
 		<Unit filename="src/user/UserIdGenerator.cpp" />
 		<Unit filename="src/util/CircularBuffer.cpp" />
