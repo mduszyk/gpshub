@@ -40,7 +40,9 @@ void CoordsBroadcastThread::run() {
 
             broadcast(u, &coordsCopy);
 
-            // by design set ready to null after broadcasting
+            /* Important to set ready to NULL after broadcasting, because
+               until ready is NULL GpsDataServer won't add notifications to queue.
+               Thanks to that id of particular user can by on queue only once at time. */
             u->setReady(NULL);
         } else {
             LOG_DEBUG("Got null coords");

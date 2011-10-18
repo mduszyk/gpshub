@@ -120,6 +120,11 @@ void GpsDataServer::processCoordinates() {
         u->getEmpty()->altitude = 0;
     LOG_DEBUG("Position update, user: " << *u);
     if (u->getReady() == NULL) {
+        /* If ready is set to NULL, it means that user is ready for
+           broadcasting position. We want to avoid situation when
+           particular user's ids are accumulated on queue. Ready
+           is set to NULL by CoordsBroadcastThread after
+           finished broadcasting. */
         LOG_DEBUG("Ready for broadcasting position, user: " << *u);
         // set ready slot
         u->setReady(u->getEmpty());
