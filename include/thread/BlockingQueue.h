@@ -1,6 +1,7 @@
 #ifndef BLOCKINGQUEUE_H
 #define BLOCKINGQUEUE_H
 
+#define _MULTI_THREADED
 #include <pthread.h>
 #include <queue>
 #include "thread/Mutex.h"

@@ -1,6 +1,7 @@
 #ifndef MUTEX_H
 #define MUTEX_H
 
+#define _MULTI_THREADED
 #include <pthread.h>
 
 class Mutex {

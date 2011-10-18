@@ -1,6 +1,7 @@
 #ifndef RWLOCK_H
 #define RWLOCK_H
 
+#define _MULTI_THREADED
 #include <pthread.h>
 
 /*

@@ -400,7 +400,7 @@
 	<cstring>
 	<functional>
 
-1318957586 source:/home/mad/workspace/gpshub/src/hubthread/CoordsBroadcastThread.cpp
+1318960690 source:/home/mad/workspace/gpshub/src/hubthread/CoordsBroadcastThread.cpp
 	<iostream>
 	<iterator>
 	<ext/hash_set>
@@ -421,19 +421,19 @@
 	"user/User.h"
 	"socket/Socket.h"
 
-1318957497 /home/mad/workspace/gpshub/include/thread/Thread.h
+1318966521 /home/mad/workspace/gpshub/include/thread/Thread.h
 	<pthread.h>
 
-1317903835 /home/mad/workspace/gpshub/include/thread/BlockingQueue.h
+1318966488 /home/mad/workspace/gpshub/include/thread/BlockingQueue.h
 	<pthread.h>
 	<queue>
 	"thread/Mutex.h"
 	"thread/ConditionVariable.h"
 
-1317903835 /home/mad/workspace/gpshub/include/thread/Mutex.h
+1318966378 /home/mad/workspace/gpshub/include/thread/Mutex.h
 	<pthread.h>
 
-1317903835 /home/mad/workspace/gpshub/include/thread/ConditionVariable.h
+1318966391 /home/mad/workspace/gpshub/include/thread/ConditionVariable.h
 	<pthread.h>
 	"thread/ScopeLock.h"
 
@@ -454,7 +454,7 @@
 	"thread/ScopeLockWr.h"
 	"thread/ScopeLockRd.h"
 
-1317903835 /home/mad/workspace/gpshub/include/thread/RwLock.h
+1318966385 /home/mad/workspace/gpshub/include/thread/RwLock.h
 	<pthread.h>
 
 1317903835 /home/mad/workspace/gpshub/include/thread/ScopeLockWr.h
@@ -598,7 +598,7 @@
 	"server/CmdPkg.h"
 	"log/macros.h"
 
-1318956831 source:/home/mad/workspace/gpshub/src/server/GpsDataServer.cpp
+1318960624 source:/home/mad/workspace/gpshub/src/server/GpsDataServer.cpp
 	<sys/socket.h>
 	<netinet/in.h>
 	<iostream>
@@ -641,8 +641,9 @@
 1317903835 source:/home/mad/workspace/gpshub/src/thread/ConditionVariable.cpp
 	"thread/ConditionVariable.h"
 
-1317903835 source:/home/mad/workspace/gpshub/src/thread/Mutex.cpp
+1318966327 source:/home/mad/workspace/gpshub/src/thread/Mutex.cpp
 	"thread/Mutex.h"
+	"thread/ThreadSyncException.h"
 
 1317903835 source:/home/mad/workspace/gpshub/src/thread/RwLock.cpp
 	"thread/RwLock.h"
@@ -664,15 +665,15 @@
 
 1317903835 source:/home/mad/workspace/gpshub/src/thread/SyncSet.cpp
 
-1317903835 source:/home/mad/workspace/gpshub/src/thread/Thread.cpp
+1318964529 source:/home/mad/workspace/gpshub/src/thread/Thread.cpp
 	<pthread.h>
 	"thread/Thread.h"
 	"thread/ThreadException.h"
 
-1317903835 /home/mad/workspace/gpshub/include/thread/ThreadException.h
+1318966534 /home/mad/workspace/gpshub/include/thread/ThreadException.h
 	<stdexcept>
 
-1317903835 source:/home/mad/workspace/gpshub/src/thread/ThreadException.cpp
+1318964214 source:/home/mad/workspace/gpshub/src/thread/ThreadException.cpp
 	"thread/ThreadException.h"
 
 1318842719 source:/home/mad/workspace/gpshub/src/user/User.cpp
@@ -705,4 +706,10 @@
 	<stdio.h>
 	<windows.h>
 	<sys/time.h>
+
+1318964269 source:/home/mad/workspace/gpshub/src/thread/ThreadSyncException.cpp
+	"thread/ThreadSyncException.h"
+
+1318964239 /home/mad/workspace/gpshub/include/thread/ThreadSyncException.h
+	"thread/ThreadException.h"
 

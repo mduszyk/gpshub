@@ -1,8 +1,8 @@
-#include <pthread.h>
-
 #ifndef THREAD_H
 #define THREAD_H
 
+#define _MULTI_THREADED
+#include <pthread.h>
 
 class Thread
 {

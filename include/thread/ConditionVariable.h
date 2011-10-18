@@ -1,6 +1,7 @@
 #ifndef CONDITIONVARIABLE_H
 #define CONDITIONVARIABLE_H
 
+#define _MULTI_THREADED
 #include <pthread.h>
 #include "thread/ScopeLock.h"
 
