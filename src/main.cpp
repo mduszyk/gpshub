@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
 
 void print_help(char* argv[]) {
     printf("Usage:\n");
-    printf("%s [-t TCP_PORT] [-u UDP_PORT] [-l LOG_LEVEL] [-f LOG_FILE] [-h]\n\n", argv[0]);
+    printf("%s [-t TCP_PORT] [-u UDP_PORT] [-l LOG_LEVEL] [-f LOG_FILE] [-n THREAD_NUMBER] [-v] [-h]\n\n", argv[0]);
 
     printf("  -t, --tcp\n");
     printf("      set tcp port, default: %s\n", DEFAULT_TCP);
