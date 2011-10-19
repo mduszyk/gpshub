@@ -81,7 +81,7 @@ void Epoll::loop() throw(EpollException) {
                 /* An error has occured on this fd, or the socket is not
                    ready for reading (why were we notified then?) */
                 int fd = ((EpollEvent*)events[i].data.ptr)->sock->getFd();
-                LOG_WARN("An error has occured on epoll monitored file descriptor - closing fd: " << fd);
+                LOG_WARN("An error has occured on epoll monitored file descriptor, closing fd: " << fd);
                 close(fd);
                 delete (EpollEvent*) events[i].data.ptr;
                 continue;
