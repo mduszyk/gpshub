@@ -13,7 +13,6 @@
 #include "user/UserIdGenerator.h"
 #include "log/macros.h"
 
-using namespace std;
 
 #define VERSION "0.7 beta"
 
