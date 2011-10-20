@@ -45,7 +45,7 @@ void CommandHandler::registerNick(CmdPkg* pkg, EpollEvent* event) {
 
     // check if nick is free
     if (this->nick_umap->count(pkg->getData()) > 0) {
-        LOG_DEBUG("Nick taken!");
+        LOG_DEBUG("Nick taken: " << pkg->getData());
         // send register nick ack with nick taken status
         CmdPkg pkg_fail(CmdPkg::REGISTER_NICK_ACK, 4);
         pkg_fail.getData()[0] = 0;
@@ -53,12 +53,15 @@ void CommandHandler::registerNick(CmdPkg* pkg, EpollEvent* event) {
         return;
     }
 
-    LOG_DEBUG("Nick available");
-
     // generate user id
     unsigned int id = idgen->generate();
     if (id == 0) {
-        LOG_WARN("All ids are taken");
+        LOG_WARN("All user ids are taken");
+        // send register nick ack with too many users status
+        CmdPkg pkg_fail(CmdPkg::REGISTER_NICK_ACK, 4);
+        pkg_fail.getData()[0] = 2;
+        event->sock->Send(pkg_fail.getBytes(), pkg_fail.getLen());
+        return;
     }
 
     // copy nick from package
