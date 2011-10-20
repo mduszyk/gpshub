@@ -75,10 +75,12 @@ void GpsDataServer::initAddrUdp() {
 
     u->setAddrUdp(their_addr);
 
-    char socket_str[INET6_ADDRSTRLEN + 6];
-    socket_printable(&their_addr, socket_str);
+    if (IS_LOG_INFO) {
+        char socket_str[INET6_ADDRSTRLEN + 6];
+        socket_printable(&their_addr, socket_str);
+        LOG_INFO("Initialized udp, user: " << *u << ", socket: " << socket_str);
+    }
 
-    LOG_INFO("Initialized udp, user: " << *u << ", socket: " << socket_str);
     sendUdpInitAck(u, 1);
 }
 

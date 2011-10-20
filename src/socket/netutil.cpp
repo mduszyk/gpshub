@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
+
 bool socket_equals(struct sockaddr_storage* sa1, struct sockaddr_storage* sa2) {
     if (sa1->ss_family != sa2->ss_family)
         return false;
@@ -40,17 +41,11 @@ short toshort(char* buf, int index) {
 
 void tobytes(char* buf, int index, short val) {
     unsigned short netval = htons(val);
-//    buf[index] = (netval >> 8) & 0xFF;
-//    buf[index + 1] = netval & 0xFF;
     memcpy(&buf[index], &netval, sizeof netval);
 }
 
 void tobytes(char* buf, int index, int val) {
     unsigned int netval = htonl(val);
-//    buf[index] = (netval >> 24) & 0xFF;
-//    buf[index + 1] = (netval >> 16) & 0xFF;
-//    buf[index + 2] = (netval >> 8) & 0xFF;
-//    buf[index + 3] = netval & 0xFF;
     memcpy(&buf[index], &netval, sizeof netval);
 }
 
