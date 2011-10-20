@@ -61,21 +61,24 @@ void GpsDataServer::initAddrUdp() {
 
     LOG_DEBUG("got token: " << token << ", user's token: " << u->getToken());
     if (token != u->getToken()) {
-        LOG_WARN("Init package with bad token, user id: " << id);
+        LOG_WARN("Init package with bad token, user: " << *u);
         sendUdpInitAck(u, 0);
         return;
     }
 
     // verify ip address TCP vs UDP (ip should be the same)
     if (!ip_equals(u->getSockPtr()->getAddrPtr(), &their_addr)) {
-        LOG_WARN("Init package form bad ip address, user id: " << id);
+        LOG_WARN("Init package form bad ip address, user: " << *u);
         sendUdpInitAck(u, 0);
         return;
     }
 
     u->setAddrUdp(their_addr);
 
-    LOG_DEBUG("Initialized udp for user: " << *u);
+    char socket_str[INET6_ADDRSTRLEN + 6];
+    socket_printable(&their_addr, socket_str);
+
+    LOG_INFO("Initialized udp, user: " << *u << ", socket: " << socket_str);
     sendUdpInitAck(u, 1);
 }
 

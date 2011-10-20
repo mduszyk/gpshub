@@ -4,6 +4,7 @@
 #include "socket/SocketException.h"
 #include <netdb.h>
 #include <sys/socket.h>
+#include <iostream>
 
 class Socket
 {
@@ -39,7 +40,12 @@ class Socket
         struct sockaddr_storage addr;
         struct addrinfo *servinfo, *p;
         void Getaddrinfo() throw(SocketException);
+        friend std::ostream& operator<<(std::ostream&, const Socket&);
 
 };
+
+inline std::ostream& operator<<(std::ostream& stream, const Socket& sock) {
+    return stream << sock.host << ":" << sock.port;
+}
 
 #endif // SOCKET_H

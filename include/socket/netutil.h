@@ -15,6 +15,8 @@ void tobytes(char* buf, int index, short val);
 
 void tobytes(char* buf, int index, int val);
 
-void printable_ip(struct sockaddr_storage* addr, char* out_buf);
+void ip_printable(struct sockaddr_storage* addr, char* out_buf);
+
+void socket_printable(struct sockaddr_storage* addr, char* out_buf);
 
 #endif // UTIL_H

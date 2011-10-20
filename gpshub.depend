@@ -493,16 +493,17 @@
 
 1317903835 /home/mad/workspace/gpshub/include/user/Coordinates.h
 
-1318953284 /home/mad/workspace/gpshub/include/socket/Socket.h
+1319100106 /home/mad/workspace/gpshub/include/socket/Socket.h
 	"socket/SocketException.h"
 	<netdb.h>
 	<sys/socket.h>
+	<iostream>
 
 1317903835 /home/mad/workspace/gpshub/include/socket/SocketException.h
 	<errno.h>
 	<stdexcept>
 
-1318956244 /home/mad/workspace/gpshub/include/socket/netutil.h
+1319101156 /home/mad/workspace/gpshub/include/socket/netutil.h
 	<sys/socket.h>
 
 1317903835 source:/home/mad/workspace/gpshub/src/hubthread/CoordsUpdateThread.cpp
@@ -584,7 +585,7 @@
 	"socket/netutil.h"
 	<string.h>
 
-1318954363 source:/home/mad/workspace/gpshub/src/server/CommandServer.cpp
+1319100562 source:/home/mad/workspace/gpshub/src/server/CommandServer.cpp
 	<iostream>
 	<sys/socket.h>
 	<fcntl.h>
@@ -598,7 +599,7 @@
 	"server/CmdPkg.h"
 	"log/macros.h"
 
-1318960624 source:/home/mad/workspace/gpshub/src/server/GpsDataServer.cpp
+1319101512 source:/home/mad/workspace/gpshub/src/server/GpsDataServer.cpp
 	<sys/socket.h>
 	<netinet/in.h>
 	<iostream>
@@ -608,7 +609,7 @@
 	"socket/netutil.h"
 	"log/macros.h"
 
-1318871283 source:/home/mad/workspace/gpshub/src/socket/Epoll.cpp
+1319050881 source:/home/mad/workspace/gpshub/src/socket/Epoll.cpp
 	"socket/Epoll.h"
 	"socket/EpollException.h"
 	<iostream>
@@ -631,7 +632,7 @@
 1317903835 source:/home/mad/workspace/gpshub/src/socket/SocketException.cpp
 	"socket/SocketException.h"
 
-1318956222 source:/home/mad/workspace/gpshub/src/socket/netutil.cpp
+1319101258 source:/home/mad/workspace/gpshub/src/socket/netutil.cpp
 	"socket/netutil.h"
 	<netinet/in.h>
 	<arpa/inet.h>
@@ -689,7 +690,7 @@
 	"util/CircularBuffer.h"
 	"stdlib.h"
 
-1318847097 source:/home/mad/workspace/gpshub/src/server/CommandHandler.cpp
+1319101400 source:/home/mad/workspace/gpshub/src/server/CommandHandler.cpp
 	"server/CommandHandler.h"
 	<iostream>
 	<string.h>

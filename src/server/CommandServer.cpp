@@ -77,7 +77,7 @@ void CommandServer::incomingConnection(EpollEvent* event) {
     while (true) {
         try {
             s = event->sock->Accept();
-             LOG_DEBUG("Accepted connection: " << s->getHost() << ":" << s->getPort());
+             LOG_DEBUG("Accepted connection: " << *s);
         } catch (SocketException& e) {
             if (e.getErrno() == EAGAIN || e.getErrno() == EWOULDBLOCK) {
                 // all incoming connections are processed
@@ -130,7 +130,7 @@ void CommandServer::incomingData(EpollEvent* event) {
 
         if (n == 0) {
             /* End of file. The remote has closed the connection. */
-            LOG_INFO("Closing connection: " << event->sock->getHost() << ":" << event->sock->getPort());
+            LOG_DEBUG("Closing connection: " << *(event->sock));
 
             if (event->ptr != NULL)
                 cmdHandler->quit((User*) event->ptr);

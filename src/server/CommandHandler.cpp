@@ -61,8 +61,6 @@ void CommandHandler::registerNick(CmdPkg* pkg, EpollEvent* event) {
         LOG_WARN("All ids are taken");
     }
 
-    LOG_DEBUG("Nick: " << pkg->getData() << " registered with id: " << id);
-
     // copy nick from package
     int nick_len = strlen(pkg->getData());
     char* nick = (char*) malloc(nick_len + 1);
@@ -78,6 +76,9 @@ void CommandHandler::registerNick(CmdPkg* pkg, EpollEvent* event) {
 
     // store reference to user in epoll event
     event->ptr = usr;
+
+    LOG_INFO("Logged in, user: " << *usr << ", socket: " << *(event->sock));
+
 
     // send rgister nick ack with generated id
     CmdPkg pkg_ok(CmdPkg::REGISTER_NICK_ACK, 8);
@@ -180,7 +181,7 @@ void CommandHandler::removeBuddies(CmdPkg* pkg, EpollEvent* event) {
 }
 
 void CommandHandler::quit(User* u) {
-    LOG_DEBUG("Quiting user: " << *u);
+    LOG_INFO("Logged out, user: " << *u);
 
     int id = u->getId();
     char* nick = u->getNick();
