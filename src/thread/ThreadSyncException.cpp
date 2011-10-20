@@ -5,7 +5,7 @@ ThreadSyncException::ThreadSyncException(char* message) : ThreadException(messag
     //ctor
 }
 
-ThreadSyncException::ThreadSyncException(const string& message) : ThreadException(message)
+ThreadSyncException::ThreadSyncException(const std::string& message) : ThreadException(message)
 {
     //dtor
 }

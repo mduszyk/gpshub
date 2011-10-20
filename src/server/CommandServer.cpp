@@ -55,7 +55,7 @@ void CommandServer::loop() {
     delete epl;
     delete event;
 
-    cout << "CommandServer::loop() end" << endl;
+    LOG_INFO("CommandServer end");
 }
 
 void CommandServer::incomingConnectionClbk(EpollEvent* event) {

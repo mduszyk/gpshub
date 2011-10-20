@@ -8,7 +8,6 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
-using namespace std;
 
 /**
     Creates socket object by passing opened socket fd.
@@ -59,7 +58,7 @@ void Socket::Getaddrinfo() throw(SocketException) {
     }
 
     if ((rv = getaddrinfo(host, port, &hints, &servinfo)) != 0) {
-        throw SocketException(string("getaddrinfo failed: ") + gai_strerror(rv));
+        throw SocketException(std::string("getaddrinfo failed: ") + gai_strerror(rv));
     }
 }
 

@@ -2,7 +2,6 @@
 #include "socket/EpollException.h"
 #include <iostream>
 #include "log/macros.h"
-using namespace std;
 
 
 Epoll::Epoll() {

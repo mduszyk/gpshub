@@ -3,13 +3,12 @@
 
 #include <errno.h>
 #include <stdexcept>
-using namespace std;
 
 class SocketException : public std::runtime_error {
 
     public:
         SocketException(char* message);
-        SocketException(const string& message);
+        SocketException(const std::string& message);
         int getErrno();
 
     private:

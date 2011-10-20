@@ -7,7 +7,6 @@
 #include "socket/netutil.h"
 #include "log/macros.h"
 
-using namespace std;
 
 GpsDataServer::GpsDataServer(char* port, IdUserMap* umap, BlockingQueue<int>* uqueue) {
     udpSocket = new Socket(NULL, port, SOCK_DGRAM);

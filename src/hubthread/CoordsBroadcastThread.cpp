@@ -6,8 +6,6 @@
 #include "socket/netutil.h"
 #include "log/macros.h"
 
-using namespace std;
-using namespace __gnu_cxx;
 
 CoordsBroadcastThread::CoordsBroadcastThread(IdUserMap* id_umap, NickUserMap* nick_umap, BlockingQueue<int>* uqueue, Socket* udpSocket) {
     this->id_umap = id_umap;
@@ -57,10 +55,10 @@ void CoordsBroadcastThread::broadcast(User* u, Coordinates* coords) {
     BuddiesSet buddies = u->getBuddies();
     ScopeLockRd readlock(buddies.getLock());
 
-    hash_set<char*, StrHash, StrEqual>::iterator end = buddies.getSet().end();
+    __gnu_cxx::hash_set<char*, StrHash, StrEqual>::iterator end = buddies.getSet().end();
 
     int pkg_len = 12;
-    for (hash_set<char*, StrHash, StrEqual>::iterator nick = buddies.getSet().begin(); nick != end; ++nick) {
+    for (__gnu_cxx::hash_set<char*, StrHash, StrEqual>::iterator nick = buddies.getSet().begin(); nick != end; ++nick) {
         if (nick_umap->count(*nick) > 0) {
 
             User* buddy = nick_umap->get(*nick);

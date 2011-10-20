@@ -7,8 +7,6 @@
 #include "thread/ScopeLockWr.h"
 #include "thread/ScopeLockRd.h"
 
-using namespace __gnu_cxx;
-
 
 template<class Item, class Hash, class Equal>
 class SyncHashSet {
@@ -20,10 +18,10 @@ class SyncHashSet {
         void erase(Item item);
         int count(Item item);
         RwLock& getLock();
-        hash_set<Item, Hash, Equal>& getSet();
+        __gnu_cxx::hash_set<Item, Hash, Equal>& getSet();
 
     private:
-        hash_set<Item, Hash, Equal> set;
+        __gnu_cxx::hash_set<Item, Hash, Equal> set;
         RwLock mlock;
 
 };
@@ -62,7 +60,7 @@ void SyncHashSet<Item, Hash, Equal>::erase(Item item) {
 }
 
 template<class Item, class Hash, class Equal>
-hash_set<Item, Hash, Equal>& SyncHashSet<Item, Hash, Equal>::getSet() {
+__gnu_cxx::hash_set<Item, Hash, Equal>& SyncHashSet<Item, Hash, Equal>::getSet() {
     return set;
 }
 

@@ -4,7 +4,7 @@ SocketException::SocketException(char* message)  : std::runtime_error(message) {
     this->Errno = errno;
 }
 
-SocketException::SocketException(const string& message)  : std::runtime_error(message) {
+SocketException::SocketException(const std::string& message)  : std::runtime_error(message) {
     this->Errno = errno;
 }
 

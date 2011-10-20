@@ -175,7 +175,7 @@ void start_gpshub(char* port_cmd, char* port_gps, int thread_num) {
     sthread.start();
     try {
         cmdsrv.loop();
-    } catch (exception& e) {
+    } catch (std::exception& e) {
         LOG_ERROR("Server loop error: " << e.what());
         exit(1);
     }
