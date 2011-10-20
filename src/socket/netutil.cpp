@@ -54,6 +54,9 @@ void tobytes(char* buf, int index, int val) {
     memcpy(&buf[index], &netval, sizeof netval);
 }
 
+/**
+    important to pass out_buf big enough
+*/
 void ip_printable(struct sockaddr_storage* addr, char* out_buf) {
     if (addr->ss_family == AF_INET) {
         struct sockaddr_in* sa = (struct sockaddr_in*) addr;
@@ -64,25 +67,22 @@ void ip_printable(struct sockaddr_storage* addr, char* out_buf) {
     }
 }
 
+/**
+    important to pass out_buf big enough
+*/
 void socket_printable(struct sockaddr_storage* addr, char* out_buf) {
     int i;
     if (addr->ss_family == AF_INET) {
         struct sockaddr_in* sa = (struct sockaddr_in*) addr;
         inet_ntop(AF_INET, &(sa->sin_addr), out_buf, INET_ADDRSTRLEN);
-        for (i = 0; i < INET_ADDRSTRLEN; i++)
-            if (out_buf[i] == '\0') {
-                out_buf[i] = ':';
-                break;
-            }
-        sprintf(out_buf + i + 1, "%u", sa->sin_port);
+        i = strlen(out_buf);
+        out_buf[i] = ':';
+        sprintf(out_buf + ++i, "%u", sa->sin_port);
     } else if (addr->ss_family == AF_INET6) {
         struct sockaddr_in6* sa6 = (sockaddr_in6*) addr;
         inet_ntop(AF_INET6, &(sa6->sin6_addr), out_buf, INET6_ADDRSTRLEN);
-        for (i = 0; i < INET6_ADDRSTRLEN; i++)
-            if (out_buf[i] == '\0') {
-                out_buf[i] = ':';
-                break;
-            }
-        sprintf(out_buf + i + 1, "%u", sa6->sin6_port);
+        i = strlen(out_buf);
+        out_buf[i] = ':';
+        sprintf(out_buf + ++i, "%u", sa6->sin6_port);
     }
 }
