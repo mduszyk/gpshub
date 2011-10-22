@@ -35,6 +35,7 @@ void CommandServer::loop() {
     tcpSocket->Listen();
 
     epl = new Epoll();
+    epl->setEndEventClbk(CommandServer::closeConnectionClbk);
 
     EventData* edata = new EventData();
     edata->ptr = this;
@@ -72,6 +73,12 @@ void CommandServer::incomingDataClbk(EpollEvent* event) {
     ((CommandServer*)edata->ptr)->incomingData(event);
 }
 
+void CommandServer::closeConnectionClbk(EpollEvent* event) {
+    EventData* edata = (EventData*) event->ptr;
+    LOG_DEBUG("Peer closing connection: " << *(edata->sock));
+    ((CommandServer*)edata->ptr)->closeConnection(event);
+}
+
 /**
     We have a notification on the listening socket,
     which means one or more incoming connections.
@@ -82,7 +89,7 @@ void CommandServer::incomingConnection(EpollEvent* event) {
 
     Socket* s;
     // accept all incomming connections
-    while (true) {
+    for(;;) {
         try {
             s = edata->sock->Accept();
             LOG_DEBUG("Accepted connection: " << *s);
@@ -129,7 +136,7 @@ void CommandServer::incomingData(EpollEvent* event) {
        whatever data is available completely, if we are running
        in edge-triggered (EPOLLET) mode and won't get a notification
        again for the same data. */
-    while (1) {
+    for(;;) {
         int n;
         try {
             n = edata->sock->Recv(read_buf, MAX_PKG_LEN);
@@ -144,24 +151,7 @@ void CommandServer::incomingData(EpollEvent* event) {
 
         if (n == 0) {
             /* End of file. The remote has closed the connection. */
-            LOG_DEBUG("Closing connection: " << *(edata->sock));
-
-            if (edata->user != NULL)
-                cmdHandler->quit(edata->user);
-
-            epl->removeEvent(event);
-
-            try {
-                edata->sock->Close();
-            } catch (SocketException& e) {
-                LOG_ERROR("Socket close error: " << e.what() << ": " << strerror(e.getErrno()));
-            }
-
-            delete edata->sock;
-            delete edata->buf;
-            delete edata;
-            delete event;
-
+            closeConnection(event);
             break;
         }
 
@@ -182,6 +172,27 @@ void CommandServer::incomingData(EpollEvent* event) {
         }
     }
 
+}
+
+void CommandServer::closeConnection(EpollEvent* event) {
+    EventData* edata = (EventData*) event->ptr;
+    LOG_DEBUG("Closing connection: " << *(edata->sock));
+
+    if (edata->user != NULL)
+        cmdHandler->quit(edata->user);
+
+    epl->removeEvent(event);
+
+    try {
+        edata->sock->Close();
+    } catch (SocketException& e) {
+        LOG_ERROR("Socket close error: " << e.what() << ": " << strerror(e.getErrno()));
+    }
+
+    delete edata->sock;
+    delete edata->buf;
+    delete edata;
+    delete event;
 }
 
 void CommandServer::stop() {

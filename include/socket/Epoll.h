@@ -22,6 +22,7 @@ class Epoll {
         void removeEvent(EpollEvent* eev) throw(EpollException);
         void loop() throw(EpollException);
         void stop();
+        void setEndEventClbk(void (*end_event_clbk)(EpollEvent*));
 
     private:
         int efd;
@@ -34,6 +35,8 @@ class Epoll {
 
         struct epoll_event event;
         struct epoll_event *events;
+
+        void (*end_event_clbk)(EpollEvent*);
 
         void initStopPipe() throw(EpollException);
 

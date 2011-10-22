@@ -44,7 +44,7 @@ void Epoll::addEvent(EpollEvent* eev, int eflags) throw(EpollException) {
     }
 
     event.data.ptr = eev;
-    event.events = eflags;
+    event.events = eflags | EPOLLRDHUP;
     int s = epoll_ctl(efd, EPOLL_CTL_ADD, eev->fd, &event);
     if (s == -1) {
         throw EpollException("unable to add event to epoll");
@@ -86,23 +86,24 @@ void Epoll::loop() throw(EpollException) {
             throw EpollException("error waiting for event");
         }
         for (i = 0; i < n; i++) {
+            EpollEvent* eev = (EpollEvent*) events[i].data.ptr;
             if ((events[i].events & EPOLLERR) ||
                 (events[i].events & EPOLLHUP) ||
-                (!(events[i].events & EPOLLIN)))
+                (events[i].events & EPOLLRDHUP))
             {
-                /* An error has occured on this fd, or the socket is not
-                   ready for reading (why were we notified then?) */
-                int fd = ((EpollEvent*)events[i].data.ptr)->fd;
-                LOG_WARN("An error has occured on epoll monitored file descriptor, fd: " << fd);
+                /*
+                    EPOLLERR - error on the associated file descriptor
+                    EPOLLHUP - hang up on the associated file descriptor,
+                        signals an unexpected close of the socket
+                    EPOLLRDHUP - peer closed connection, or shut down
+                        writing half of connection
+                */
 
-                //close(fd);
-                //delete (EpollEvent*) events[i].data.ptr;
-
+                end_event_clbk(eev);
                 continue;
             }
 
             // run callback if set
-            EpollEvent* eev = (EpollEvent*) events[i].data.ptr;
             if (eev->clbk != NULL) {
                 eev->clbk(eev);
             }
@@ -115,4 +116,8 @@ void Epoll::stop() {
     _loop = false;
     // send one byte to stop_pipe, it causes to return from epoll_wait
     write(stop_pipe[1], "\0", 1);
+}
+
+void Epoll::setEndEventClbk(void (*end_event_clbk)(EpollEvent*)) {
+    this->end_event_clbk = end_event_clbk;
 }

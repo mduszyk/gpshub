@@ -15,12 +15,13 @@ class CommandServer : public Server {
     public:
         CommandServer(char* port, IdUserMap* umap, CommandHandler* cmdHandler);
         virtual ~CommandServer();
+
         void loop();
         void stop();
-        void incomingConnection(EpollEvent* event);
-        void incomingData(EpollEvent* event);
+
         static void incomingConnectionClbk(EpollEvent* event);
         static void incomingDataClbk(EpollEvent* event);
+        static void closeConnectionClbk(EpollEvent* event);
 
     private:
         Socket* tcpSocket;
@@ -28,6 +29,10 @@ class CommandServer : public Server {
         CommandHandler* cmdHandler;
         Epoll* epl;
         char* read_buf;
+
+        void incomingConnection(EpollEvent* event);
+        void incomingData(EpollEvent* event);
+        void closeConnection(EpollEvent* event);
 
 };
 
