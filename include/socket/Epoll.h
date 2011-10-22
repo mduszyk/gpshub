@@ -8,12 +8,9 @@
 
 
 struct EpollEvent {
-    Socket* sock;
-    CircularBuffer* buf;
-    void (*clbk)(EpollEvent*);
-    void* epl;
-    void* creator;
+    int fd;
     void* ptr;
+    void (*clbk)(EpollEvent*);
 };
 
 class Epoll {
@@ -24,15 +21,21 @@ class Epoll {
         void addEvent(EpollEvent* eev, int eflags) throw(EpollException);
         void removeEvent(EpollEvent* eev) throw(EpollException);
         void loop() throw(EpollException);
+        void stop();
 
     private:
         int efd;
         static const int edelta = 64;
         int events_size;
         int nevents;
+        int stop_pipe[2];
+        EpollEvent stop_event;
+        bool _loop;
 
         struct epoll_event event;
         struct epoll_event *events;
+
+        void initStopPipe() throw(EpollException);
 
 };
 

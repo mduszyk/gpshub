@@ -4,6 +4,7 @@
 #include <time.h>
 #include "log/macros.h"
 
+
 CommandHandler::CommandHandler(IdUserMap* id_umap, NickUserMap* nick_umap, UserIdGenerator* idgen) {
     this->id_umap = id_umap;
     this->nick_umap = nick_umap;
@@ -17,20 +18,20 @@ CommandHandler::~CommandHandler() {
     //dtor
 }
 
-void CommandHandler::handle(CmdPkg* pkg, EpollEvent* event) {
+void CommandHandler::handle(CmdPkg* pkg, EventData* edata) {
     LOG_DEBUG("CMD_PKG, type: " << (int)pkg->getType() << ", length: " << pkg->getLen() << ", data: " << pkg->getData());
 
     switch (pkg->getType()) {
         case CmdPkg::REGISTER_NICK:
-            registerNick(pkg, event);
+            registerNick(pkg, edata);
             break;
 
         case CmdPkg::ADD_BUDDIES:
-            addBuddies(pkg, event);
+            addBuddies(pkg, edata);
             break;
 
         case CmdPkg::REMOVE_BUDDIES:
-            removeBuddies(pkg, event);
+            removeBuddies(pkg, edata);
             break;
 
         default:
@@ -40,7 +41,7 @@ void CommandHandler::handle(CmdPkg* pkg, EpollEvent* event) {
 
 }
 
-void CommandHandler::registerNick(CmdPkg* pkg, EpollEvent* event) {
+void CommandHandler::registerNick(CmdPkg* pkg, EventData* edata) {
     LOG_DEBUG("Nick: " << pkg->getData());
 
     // check if nick is free
@@ -49,7 +50,7 @@ void CommandHandler::registerNick(CmdPkg* pkg, EpollEvent* event) {
         // send register nick ack with nick taken status
         CmdPkg pkg_fail(CmdPkg::REGISTER_NICK_ACK, 4);
         pkg_fail.getData()[0] = 0;
-        event->sock->Send(pkg_fail.getBytes(), pkg_fail.getLen());
+        edata->sock->Send(pkg_fail.getBytes(), pkg_fail.getLen());
         return;
     }
 
@@ -60,7 +61,7 @@ void CommandHandler::registerNick(CmdPkg* pkg, EpollEvent* event) {
         // send register nick ack with too many users status
         CmdPkg pkg_fail(CmdPkg::REGISTER_NICK_ACK, 4);
         pkg_fail.getData()[0] = 2;
-        event->sock->Send(pkg_fail.getBytes(), pkg_fail.getLen());
+        edata->sock->Send(pkg_fail.getBytes(), pkg_fail.getLen());
         return;
     }
 
@@ -71,16 +72,16 @@ void CommandHandler::registerNick(CmdPkg* pkg, EpollEvent* event) {
 
     // create user
     User* usr = new User(id, nick);
-    usr->setSockPtr(event->sock);
+    usr->setSockPtr(edata->sock);
 
     // add to user maps
     nick_umap->put(nick, usr);
     id_umap->put(id, usr);
 
-    // store reference to user in epoll event
-    event->ptr = usr;
+    // store reference to user in epoll edata
+    edata->user = usr;
 
-    LOG_INFO("Logged in, user: " << *usr << ", socket: " << *(event->sock));
+    LOG_INFO("Logged in, user: " << *usr << ", socket: " << *(edata->sock));
 
 
     // send rgister nick ack with generated id
@@ -88,7 +89,7 @@ void CommandHandler::registerNick(CmdPkg* pkg, EpollEvent* event) {
     pkg_ok.getData()[0] = 1;
     pkg_ok.setInt(1, id);
     LOG_DEBUG("Sending ACK, len: " << pkg_ok.getLen());
-    event->sock->Send(pkg_ok.getBytes(), pkg_ok.getLen());
+    edata->sock->Send(pkg_ok.getBytes(), pkg_ok.getLen());
 
     // send init udp request
     int token = rand();
@@ -96,13 +97,13 @@ void CommandHandler::registerNick(CmdPkg* pkg, EpollEvent* event) {
     CmdPkg init_udp(CmdPkg::INITIALIZE_UDP, 7);
     init_udp.setInt(0, token);
     LOG_DEBUG("Sending init udp request, token: " << token);
-    event->sock->Send(init_udp.getBytes(), init_udp.getLen());
+    edata->sock->Send(init_udp.getBytes(), init_udp.getLen());
 
 }
 
-void CommandHandler::addBuddies(CmdPkg* pkg, EpollEvent* event) {
+void CommandHandler::addBuddies(CmdPkg* pkg, EventData* edata) {
     LOG_DEBUG("buddies: " << pkg->getData());
-    User* usr = (User*) event->ptr;
+    User* usr = edata->user;
 
     // prepare user id package
     int len_nick = strlen(usr->getNick()) + 1;
@@ -158,16 +159,16 @@ void CommandHandler::addBuddies(CmdPkg* pkg, EpollEvent* event) {
             offset += n;
         }
         // send buddies ids pkg
-        event->sock->Send(pkg_ids.getBytes(), pkg_ids.getLen());
+        edata->sock->Send(pkg_ids.getBytes(), pkg_ids.getLen());
     }
 
 }
 
-void CommandHandler::removeBuddies(CmdPkg* pkg, EpollEvent* event) {
+void CommandHandler::removeBuddies(CmdPkg* pkg, EventData* edata) {
     LOG_DEBUG("buddies: " << pkg->getData());
 
     char* data = pkg->getData();
-    User* usr = (User*) event->ptr;
+    User* usr = edata->user;
     int a = 0;
     for (int i = 0; i < strlen(data) + 1; i++) {
         if (data[i] == ',' || data[i] == '\0') {

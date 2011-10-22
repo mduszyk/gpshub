@@ -18,7 +18,6 @@ CommandServer::CommandServer(char* port, IdUserMap* umap, CommandHandler* cmdHan
     this->umap = umap;
     this->cmdHandler = cmdHandler;
     read_buf = (char*) malloc(MAX_PKG_LEN);
-    listen = true;
 }
 
 CommandServer::~CommandServer() {
@@ -36,15 +35,20 @@ void CommandServer::loop() {
     tcpSocket->Listen();
 
     epl = new Epoll();
-    EpollEvent* event = new EpollEvent();
-    event->creator = this;
-    event->sock = tcpSocket;
-    event->clbk = CommandServer::incomingConnectionClbk;
+
+    EventData* edata = new EventData();
+    edata->ptr = this;
+    edata->sock = tcpSocket;
+
+    EpollEvent* server_event = new EpollEvent();
+    server_event->fd = tcpSocket->getFd();
+    server_event->clbk = CommandServer::incomingConnectionClbk;
+    server_event->ptr = edata;
 
     /* Monitor server socket for incomming connections in edge triggered mode
        EPOLLIN - the associated file is available for read
        EPOLLET - sets  the  Edge  Triggered  behavior */
-    epl->addEvent(event, EPOLLIN | EPOLLET);
+    epl->addEvent(server_event, EPOLLIN | EPOLLET);
 
     try {
         epl->loop();
@@ -53,31 +57,35 @@ void CommandServer::loop() {
     }
 
     delete epl;
-    delete event;
+    delete server_event;
 
     LOG_INFO("CommandServer end");
 }
 
 void CommandServer::incomingConnectionClbk(EpollEvent* event) {
-    ((CommandServer*)event->creator)->incomingConnection(event);
+    EventData* edata = (EventData*) event->ptr;
+    ((CommandServer*)edata->ptr)->incomingConnection(event);
 }
 
 void CommandServer::incomingDataClbk(EpollEvent* event) {
-    ((CommandServer*)event->creator)->incomingData(event);
+    EventData* edata = (EventData*) event->ptr;
+    ((CommandServer*)edata->ptr)->incomingData(event);
 }
 
+/**
+    We have a notification on the listening socket,
+    which means one or more incoming connections.
+*/
 void CommandServer::incomingConnection(EpollEvent* event) {
+    EventData* edata = (EventData*) event->ptr;
     LOG_DEBUG("Connections waiting for accept");
-
-    /* We have a notification on the listening socket,
-       which means one or more incoming connections. */
 
     Socket* s;
     // accept all incomming connections
     while (true) {
         try {
-            s = event->sock->Accept();
-             LOG_DEBUG("Accepted connection: " << *s);
+            s = edata->sock->Accept();
+            LOG_DEBUG("Accepted connection: " << *s);
         } catch (SocketException& e) {
             if (e.getErrno() == EAGAIN || e.getErrno() == EWOULDBLOCK) {
                 // all incoming connections are processed
@@ -92,13 +100,18 @@ void CommandServer::incomingConnection(EpollEvent* event) {
 
         CircularBuffer* cbuf = new CircularBuffer(MAX_PKG_LEN * 2);
 
-        // important to later delete new_event
+        // important to later delete new_event and edata
+        EventData* edata = new EventData();
+        edata->ptr = this;
+        edata->sock = s;
+        edata->buf = cbuf;
+
         EpollEvent* new_event = new EpollEvent();
-        new_event->creator = this;
-        new_event->buf = cbuf;
-        new_event->sock = s;
+        new_event->fd = s->getFd();
         new_event->clbk = CommandServer::incomingDataClbk;
-        ((Epoll*)event->epl)->addEvent(new_event, EPOLLIN | EPOLLET);
+        new_event->ptr = edata;
+
+        epl->addEvent(new_event, EPOLLIN | EPOLLET);
     }
 }
 
@@ -109,7 +122,8 @@ void CommandServer::incomingConnection(EpollEvent* event) {
     '---------------'-----------------------'------------'
 */
 void CommandServer::incomingData(EpollEvent* event) {
-    LOG_DEBUG("Incomming data: " << event->sock->getHost() << ":" << event->sock->getPort());
+    EventData* edata = (EventData*) event->ptr;
+    LOG_DEBUG("Incomming data: " << *(edata->sock));
 
     /* We have data on the fd waiting to be read. We must read
        whatever data is available completely, if we are running
@@ -118,7 +132,7 @@ void CommandServer::incomingData(EpollEvent* event) {
     while (1) {
         int n;
         try {
-            n = event->sock->Recv(read_buf, MAX_PKG_LEN);
+            n = edata->sock->Recv(read_buf, MAX_PKG_LEN);
         } catch (SocketException& e) {
             if (e.getErrno() == EAGAIN) {
                 // EAGAIN means we have read all
@@ -130,39 +144,40 @@ void CommandServer::incomingData(EpollEvent* event) {
 
         if (n == 0) {
             /* End of file. The remote has closed the connection. */
-            LOG_DEBUG("Closing connection: " << *(event->sock));
+            LOG_DEBUG("Closing connection: " << *(edata->sock));
 
-            if (event->ptr != NULL)
-                cmdHandler->quit((User*) event->ptr);
+            if (edata->user != NULL)
+                cmdHandler->quit(edata->user);
 
-            ((Epoll*)event->epl)->removeEvent(event);
+            epl->removeEvent(event);
 
             try {
-                event->sock->Close();
+                edata->sock->Close();
             } catch (SocketException& e) {
                 LOG_ERROR("Socket close error: " << e.what() << ": " << strerror(e.getErrno()));
             }
 
-            delete event->sock;
-            delete event->buf;
+            delete edata->sock;
+            delete edata->buf;
+            delete edata;
             delete event;
 
             break;
         }
 
-        event->buf->add(read_buf, n);
+        edata->buf->add(read_buf, n);
 
         // read pkg header
-        event->buf->read(read_buf, 3);
+        edata->buf->read(read_buf, 3);
         short pkg_len = toshort(read_buf, 1);
 
-        LOG_DEBUG("pkg_len: " << pkg_len << ", buf size: " << event->buf->size());
+        LOG_DEBUG("pkg_len: " << pkg_len << ", buf size: " << edata->buf->size());
 
-        if (event->buf->size() >= pkg_len) {
+        if (edata->buf->size() >= pkg_len) {
             // we have whole package - process it
-            event->buf->get(read_buf, pkg_len);
+            edata->buf->get(read_buf, pkg_len);
             CmdPkg* pkg = new CmdPkg(read_buf);
-            cmdHandler->handle(pkg, event);
+            cmdHandler->handle(pkg, edata);
             delete pkg;
         }
     }
@@ -170,5 +185,9 @@ void CommandServer::incomingData(EpollEvent* event) {
 }
 
 void CommandServer::stop() {
-    listen = false;
+    LOG_INFO("Stopping CommandServer");
+    epl->stop();
+
+    // TODO cleanup
+
 }

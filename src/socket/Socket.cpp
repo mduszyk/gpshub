@@ -41,7 +41,7 @@ Socket::Socket(char* host, char* port, int socktype) {
 
 Socket::~Socket() {
     //freeaddrinfo(servinfo);
-    close(sockfd);
+    shutdown(sockfd, 2);
     free(host);
     free(port);
 }

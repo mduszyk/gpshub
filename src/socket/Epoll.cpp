@@ -10,15 +10,30 @@ Epoll::Epoll() {
         throw EpollException("failed to create epoll fd");
     }
 
+    _loop = true;
+
     events_size = edelta;
     events = (epoll_event*) malloc(events_size * (sizeof event));
 
     nevents = 0;
+
+    initStopPipe();
 }
 
 Epoll::~Epoll() {
+    removeEvent(&stop_event);
     free(events);
     close(efd);
+}
+
+void Epoll::initStopPipe() throw(EpollException) {
+    if (pipe(stop_pipe) == -1) {
+        throw EpollException("Failed to create stoping pipe");
+    }
+
+    stop_event.fd = stop_pipe[0];
+    stop_event.clbk = NULL;
+    addEvent(&stop_event, EPOLLIN | EPOLLET);
 }
 
 void Epoll::addEvent(EpollEvent* eev, int eflags) throw(EpollException) {
@@ -28,13 +43,11 @@ void Epoll::addEvent(EpollEvent* eev, int eflags) throw(EpollException) {
         events = (epoll_event*) malloc(events_size * (sizeof event));
     }
 
-    eev->epl = this;
-
     event.data.ptr = eev;
     event.events = eflags;
-    int s = epoll_ctl(efd, EPOLL_CTL_ADD, eev->sock->getFd(), &event);
+    int s = epoll_ctl(efd, EPOLL_CTL_ADD, eev->fd, &event);
     if (s == -1) {
-        throw EpollException("unable to add socket to epoll");
+        throw EpollException("unable to add event to epoll");
     }
     nevents++;
 }
@@ -47,9 +60,9 @@ void Epoll::addEvent(EpollEvent* eev, int eflags) throw(EpollException) {
     Since kernel 2.6.9, event can be specified as NULL when using EPOLL_CTL_DEL.
 */
 void Epoll::removeEvent(EpollEvent* eev) throw(EpollException) {
-    int s = epoll_ctl(efd, EPOLL_CTL_DEL, eev->sock->getFd(), &event);
+    int s = epoll_ctl(efd, EPOLL_CTL_DEL, eev->fd, &event);
     if (s == -1) {
-        throw EpollException("unable to remove socket from epoll");
+        throw EpollException("unable to remove event from epoll");
     }
     nevents--;
 
@@ -64,9 +77,9 @@ void Epoll::removeEvent(EpollEvent* eev) throw(EpollException) {
     The event loop
 */
 void Epoll::loop() throw(EpollException) {
+    int n, i;
 
-    while (1) {
-        int n, i;
+    while(_loop) {
 
         n = epoll_wait(efd, events, events_size, -1);
         if (n == -1) {
@@ -79,17 +92,27 @@ void Epoll::loop() throw(EpollException) {
             {
                 /* An error has occured on this fd, or the socket is not
                    ready for reading (why were we notified then?) */
-                int fd = ((EpollEvent*)events[i].data.ptr)->sock->getFd();
-                LOG_WARN("An error has occured on epoll monitored file descriptor, closing fd: " << fd);
-                close(fd);
-                delete (EpollEvent*) events[i].data.ptr;
+                int fd = ((EpollEvent*)events[i].data.ptr)->fd;
+                LOG_WARN("An error has occured on epoll monitored file descriptor, fd: " << fd);
+
+                //close(fd);
+                //delete (EpollEvent*) events[i].data.ptr;
+
                 continue;
             }
 
-            // run callback
-            ((EpollEvent*)events[i].data.ptr)->clbk( (EpollEvent*)events[i].data.ptr );
-
+            // run callback if set
+            EpollEvent* eev = (EpollEvent*) events[i].data.ptr;
+            if (eev->clbk != NULL) {
+                eev->clbk(eev);
+            }
         }
     }
 
+}
+
+void Epoll::stop() {
+    _loop = false;
+    // send one byte to stop_pipe, it causes to return from epoll_wait
+    write(stop_pipe[1], "\0", 1);
 }

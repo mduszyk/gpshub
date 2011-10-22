@@ -7,6 +7,8 @@
 #include "socket/Epoll.h"
 #include "thread/SyncMap.h"
 #include "user/User.h"
+#include "server/EventData.h"
+
 
 class CommandServer : public Server {
 
@@ -25,7 +27,6 @@ class CommandServer : public Server {
         IdUserMap* umap;
         CommandHandler* cmdHandler;
         Epoll* epl;
-        bool listen;
         char* read_buf;
 
 };
