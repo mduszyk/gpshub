@@ -99,7 +99,15 @@ void Epoll::loop() throw(EpollException) {
                         writing half of connection
                 */
 
-                end_event_clbk(eev);
+                if (eev->fd != stop_pipe[0])
+                    end_event_clbk(eev);
+                else {
+                    removeEvent(&stop_event);
+                    close(stop_pipe[0]);
+                    close(stop_pipe[1]);
+                    initStopPipe();
+                }
+
                 continue;
             }
 
