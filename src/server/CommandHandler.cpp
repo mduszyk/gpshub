@@ -105,6 +105,11 @@ void CommandHandler::addBuddies(CmdPkg* pkg, EventData* edata) {
     LOG_DEBUG("buddies: " << pkg->getData());
     User* usr = edata->user;
 
+    if (usr == NULL) {
+        LOG_WARN("Attempt to add buddies before login: " << *(edata->sock));
+        return;
+    }
+
     // prepare user id package
     int len_nick = strlen(usr->getNick()) + 1;
     int uid_pkg_len = 3 + sizeof(int) + len_nick;
@@ -166,9 +171,14 @@ void CommandHandler::addBuddies(CmdPkg* pkg, EventData* edata) {
 
 void CommandHandler::removeBuddies(CmdPkg* pkg, EventData* edata) {
     LOG_DEBUG("buddies: " << pkg->getData());
+    User* usr = edata->user;
+
+    if (usr == NULL) {
+        LOG_WARN("Attempt to remove buddies before login: " << *(edata->sock));
+        return;
+    }
 
     char* data = pkg->getData();
-    User* usr = edata->user;
     int a = 0;
     for (int i = 0; i < strlen(data) + 1; i++) {
         if (data[i] == ',' || data[i] == '\0') {
