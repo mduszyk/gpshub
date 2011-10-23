@@ -24,6 +24,8 @@ Epoll::~Epoll() {
     removeEvent(&stop_event);
     free(events);
     close(efd);
+    close(stop_pipe[0]);
+    close(stop_pipe[1]);
 }
 
 void Epoll::initStopPipe() throw(EpollException) {
