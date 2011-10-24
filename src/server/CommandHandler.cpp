@@ -115,7 +115,7 @@ void CommandHandler::addBuddies(CmdPkg* pkg, EventData* edata) {
     int uid_pkg_len = 3 + sizeof(int) + len_nick;
     CmdPkg pkg_uid(CmdPkg::BUDDIES_IDS, uid_pkg_len);
     pkg_uid.setInt(0, usr->getId());
-    memcpy(pkg_uid.getData() + sizeof(int), usr->getNick(), len_nick);
+    pkg_uid.setBytes(sizeof(int), usr->getNick(), len_nick);
 
     // initialize buddies ids map and ids pkg len var
     std::map<int, char*> ids_map;
@@ -160,7 +160,7 @@ void CommandHandler::addBuddies(CmdPkg* pkg, EventData* edata) {
             pkg_ids.setInt(offset, id);
             offset += sizeof(int);
             int n = strlen(nick) + 1;
-            memcpy(pkg_ids.getData() + offset, nick, n);
+            pkg_ids.setBytes(offset, nick, n);
             offset += n;
         }
         // send buddies ids pkg

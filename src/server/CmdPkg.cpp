@@ -47,3 +47,7 @@ void CmdPkg::setInt(int data_index, int val) {
 void CmdPkg::setShort(int data_index, short val) {
     tobytes(getData(), data_index, val);
 }
+
+void CmdPkg::setBytes(int data_index, char* buf, int n) {
+    memcpy(getData() + data_index, buf, n);
+}

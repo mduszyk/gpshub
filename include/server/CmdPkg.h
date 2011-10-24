@@ -27,6 +27,7 @@ class CmdPkg {
         char* getBytes();
         void setInt(int data_index, int val);
         void setShort(int data_index, short val);
+        void setBytes(int data_index, char* buf, int len);
 
     private:
         char* bytes;
