@@ -94,6 +94,8 @@ class GpshubFakeClient():
         self.gps_listener.add_observer(self.handle_gps_pkg)
         self.gps_listener.start()
         
+        # TODO this goes through UDP so it should be invoked
+        # in loop until init ack received
         self.gps_channel.init_udp(self.token)
 
     def handle_cmd_pkg(self, pkg):
