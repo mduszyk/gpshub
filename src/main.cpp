@@ -16,7 +16,7 @@
 #include "log/macros.h"
 
 
-#define VERSION "0.7.1 beta"
+#define VERSION "0.7.1_beta"
 
 #define DEFAULT_TCP "9990"
 #define DEFAULT_UDP "9991"
