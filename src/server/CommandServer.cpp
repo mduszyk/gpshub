@@ -110,13 +110,11 @@ void CommandServer::incomingConnection(EpollEvent* event) {
         // make socket non blocking
         new_sock->addFlags(O_NONBLOCK);
 
-        CircularBuffer* cbuf = new CircularBuffer(MAX_PKG_LEN * 2);
-
         // important to later delete new_event and edata
         Session* new_session = new Session();
         new_session->ptr = this;
         new_session->sock = new_sock;
-        new_session->buf = cbuf;
+        new_session->buf = new CircularBuffer(MAX_PKG_LEN * 2);
 
         EpollEvent* new_event = new EpollEvent();
         new_event->fd = new_sock->getFd();
