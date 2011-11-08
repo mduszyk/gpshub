@@ -52,9 +52,9 @@
 		<Unit filename="include/server/CmdPkg.h" />
 		<Unit filename="include/server/CommandHandler.h" />
 		<Unit filename="include/server/CommandServer.h" />
-		<Unit filename="include/server/EventData.h" />
 		<Unit filename="include/server/GpsDataServer.h" />
 		<Unit filename="include/server/Server.h" />
+		<Unit filename="include/server/Session.h" />
 		<Unit filename="include/socket/Epoll.h" />
 		<Unit filename="include/socket/EpollException.h" />
 		<Unit filename="include/socket/Socket.h" />
