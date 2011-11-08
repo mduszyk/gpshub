@@ -35,6 +35,7 @@ void Epoll::initStopPipe() throw(EpollException) {
 
     stop_event.fd = stop_pipe[0];
     stop_event.clbk = NULL;
+    stop_event.ptr = NULL;
     addEvent(&stop_event, EPOLLIN | EPOLLET);
 }
 
@@ -46,7 +47,7 @@ void Epoll::addEvent(EpollEvent* eev, int eflags) throw(EpollException) {
     }
 
     event.data.ptr = eev;
-    event.events = eflags | EPOLLRDHUP;
+    event.events = eflags;
     int s = epoll_ctl(efd, EPOLL_CTL_ADD, eev->fd, &event);
     if (s == -1) {
         throw EpollException("unable to add event to epoll");
@@ -80,6 +81,7 @@ void Epoll::removeEvent(EpollEvent* eev) throw(EpollException) {
 */
 void Epoll::loop() throw(EpollException) {
     int n, i;
+    EpollEvent* eev;
 
     while(_loop) {
 
@@ -88,7 +90,7 @@ void Epoll::loop() throw(EpollException) {
             throw EpollException("error waiting for event");
         }
         for (i = 0; i < n; i++) {
-            EpollEvent* eev = (EpollEvent*) events[i].data.ptr;
+            eev = (EpollEvent*) events[i].data.ptr;
             if ((events[i].events & EPOLLERR) ||
                 (events[i].events & EPOLLHUP) ||
                 (events[i].events & EPOLLRDHUP))

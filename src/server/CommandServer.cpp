@@ -37,14 +37,16 @@ void CommandServer::loop() {
     epl = new Epoll();
     epl->setEndEventClbk(CommandServer::closeConnectionClbk);
 
-    EventData* edata = new EventData();
-    edata->ptr = this;
-    edata->sock = tcpSocket;
+    Session* server_session = new Session();
+    server_session->ptr = this;
+    server_session->sock = tcpSocket;
+    server_session->buf = NULL;
+    server_session->user = NULL;
 
     EpollEvent* server_event = new EpollEvent();
     server_event->fd = tcpSocket->getFd();
     server_event->clbk = CommandServer::incomingConnectionClbk;
-    server_event->ptr = edata;
+    server_event->ptr = server_session;
 
     /* Monitor server socket for incomming connections in edge triggered mode
        EPOLLIN - the associated file is available for read
@@ -59,24 +61,25 @@ void CommandServer::loop() {
 
     delete epl;
     delete server_event;
+    delete server_session;
 
     LOG_INFO("CommandServer end");
 }
 
 void CommandServer::incomingConnectionClbk(EpollEvent* event) {
-    EventData* edata = (EventData*) event->ptr;
-    ((CommandServer*)edata->ptr)->incomingConnection(event);
+    Session* session = (Session*) event->ptr;
+    ((CommandServer*)session->ptr)->incomingConnection(event);
 }
 
 void CommandServer::incomingDataClbk(EpollEvent* event) {
-    EventData* edata = (EventData*) event->ptr;
-    ((CommandServer*)edata->ptr)->incomingData(event);
+    Session* session = (Session*) event->ptr;
+    ((CommandServer*)session->ptr)->incomingData(event);
 }
 
 void CommandServer::closeConnectionClbk(EpollEvent* event) {
-    EventData* edata = (EventData*) event->ptr;
-    LOG_DEBUG("Peer closing connection: " << *(edata->sock));
-    ((CommandServer*)edata->ptr)->closeConnection(event);
+    Session* session = (Session*) event->ptr;
+    LOG_DEBUG("Peer closing connection: " << *(session->sock));
+    ((CommandServer*)session->ptr)->closeConnection(event);
 }
 
 /**
@@ -84,15 +87,17 @@ void CommandServer::closeConnectionClbk(EpollEvent* event) {
     which means one or more incoming connections.
 */
 void CommandServer::incomingConnection(EpollEvent* event) {
-    EventData* edata = (EventData*) event->ptr;
+    Session* server_session = (Session*) event->ptr;
     LOG_DEBUG("Connections waiting for accept");
 
-    Socket* s;
+    Socket* new_sock;
     // accept all incomming connections
     for(;;) {
         try {
-            s = edata->sock->Accept();
-            LOG_DEBUG("Accepted connection: " << *s);
+            new_sock = tcpSocket->Accept();
+            // TODO find out why it is not working (segmantation fault)
+            //new_sock = server_session->sock->Accept();
+            LOG_DEBUG("Accepted connection: " << *new_sock);
         } catch (SocketException& e) {
             if (e.getErrno() == EAGAIN || e.getErrno() == EWOULDBLOCK) {
                 // all incoming connections are processed
@@ -103,22 +108,22 @@ void CommandServer::incomingConnection(EpollEvent* event) {
         }
 
         // make socket non blocking
-        s->addFlags(O_NONBLOCK);
+        new_sock->addFlags(O_NONBLOCK);
 
         CircularBuffer* cbuf = new CircularBuffer(MAX_PKG_LEN * 2);
 
         // important to later delete new_event and edata
-        EventData* edata = new EventData();
-        edata->ptr = this;
-        edata->sock = s;
-        edata->buf = cbuf;
+        Session* new_session = new Session();
+        new_session->ptr = this;
+        new_session->sock = new_sock;
+        new_session->buf = cbuf;
 
         EpollEvent* new_event = new EpollEvent();
-        new_event->fd = s->getFd();
+        new_event->fd = new_sock->getFd();
         new_event->clbk = CommandServer::incomingDataClbk;
-        new_event->ptr = edata;
+        new_event->ptr = new_session;
 
-        epl->addEvent(new_event, EPOLLIN | EPOLLET);
+        epl->addEvent(new_event, EPOLLIN | EPOLLET | EPOLLRDHUP);
     }
 }
 
@@ -129,17 +134,18 @@ void CommandServer::incomingConnection(EpollEvent* event) {
     '---------------'-----------------------'------------'
 */
 void CommandServer::incomingData(EpollEvent* event) {
-    EventData* edata = (EventData*) event->ptr;
-    LOG_DEBUG("Incomming data: " << *(edata->sock));
+    Session* session = (Session*) event->ptr;
+    LOG_DEBUG("Incomming data: " << *(session->sock));
 
     /* We have data on the fd waiting to be read. We must read
        whatever data is available completely, if we are running
        in edge-triggered (EPOLLET) mode and won't get a notification
        again for the same data. */
-    for(;;) {
-        int n;
+    int n = 0;
+    unsigned short pkg_len = 0;
+    while(true) {
         try {
-            n = edata->sock->Recv(read_buf, MAX_PKG_LEN);
+            n = session->sock->Recv(read_buf, MAX_PKG_LEN);
         } catch (SocketException& e) {
             if (e.getErrno() == EAGAIN) {
                 // EAGAIN means we have read all
@@ -155,19 +161,19 @@ void CommandServer::incomingData(EpollEvent* event) {
             break;
         }
 
-        edata->buf->add(read_buf, n);
+        session->buf->add(read_buf, n);
 
         // read pkg header
-        edata->buf->read(read_buf, 3);
-        short pkg_len = toshort(read_buf, 1);
+        session->buf->read(read_buf, 3);
+        pkg_len = toushort(read_buf, 1);
 
-        LOG_DEBUG("pkg_len: " << pkg_len << ", buf size: " << edata->buf->size());
+        LOG_DEBUG("pkg_len: " << pkg_len << ", buf size: " << session->buf->size());
 
-        if (edata->buf->size() >= pkg_len) {
+        if (session->buf->size() >= pkg_len) {
             // we have whole package - process it
-            edata->buf->get(read_buf, pkg_len);
+            session->buf->get(read_buf, pkg_len);
             CmdPkg* pkg = new CmdPkg(read_buf);
-            cmdHandler->handle(pkg, edata);
+            cmdHandler->handle(pkg, session);
             delete pkg;
         }
     }
@@ -175,29 +181,29 @@ void CommandServer::incomingData(EpollEvent* event) {
 }
 
 void CommandServer::closeConnection(EpollEvent* event) {
-    EventData* edata = (EventData*) event->ptr;
-    LOG_DEBUG("Closing connection: " << *(edata->sock));
+    Session* session = (Session*) event->ptr;
+    LOG_DEBUG("Closing connection: " << *(session->sock));
 
-    if (edata->user != NULL)
-        cmdHandler->quit(edata->user);
+    if (session->user != NULL)
+        cmdHandler->quit(session->user);
 
     epl->removeEvent(event);
 
     try {
-        edata->sock->Close();
+        session->sock->Close();
     } catch (SocketException& e) {
         LOG_ERROR("Socket close error: " << e.what() << ": " << strerror(e.getErrno()));
     }
 
-    delete edata->sock;
-    delete edata->buf;
-    delete edata;
+    delete session->sock;
+    delete session->buf;
+    delete session;
     delete event;
 }
 
 void CommandServer::stop() {
     LOG_INFO("Stopping CommandServer");
-    epl->stop();
+    //epl->stop();
 
     // TODO cleanup
 

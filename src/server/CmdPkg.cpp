@@ -5,14 +5,14 @@
 
 
 CmdPkg::CmdPkg(char* buf) {
-    short len = toshort(buf, 1);
+    unsigned short len = toushort(buf, 1);
     bytes = (char*) malloc(len + 1);
     bytes[len] = '\0';
 
     memcpy(bytes, buf, len);
 }
 
-CmdPkg::CmdPkg(char type, short len) {
+CmdPkg::CmdPkg(char type, unsigned short len) {
     bytes = (char*) malloc(len + 1);
     bytes[len] = '\0';
 
@@ -28,8 +28,8 @@ char CmdPkg::getType() {
     return bytes[0];
 }
 
-short CmdPkg::getLen() {
-    return toshort(bytes, 1);
+unsigned short CmdPkg::getLen() {
+    return toushort(bytes, 1);
 }
 
 char* CmdPkg::getData() {

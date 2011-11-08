@@ -18,11 +18,11 @@ class CmdPkg {
         static const char BUDDIES_IDS = 150;
 
         CmdPkg(char* buf);
-        CmdPkg(char type, short len);
+        CmdPkg(char type, unsigned short len);
         virtual ~CmdPkg();
 
         char getType();
-        short getLen();
+        unsigned short getLen();
         char* getData();
         char* getBytes();
         void setInt(int data_index, int val);

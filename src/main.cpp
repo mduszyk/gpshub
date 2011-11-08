@@ -1,7 +1,9 @@
-#include <iostream>
-#include <exception>
 #include <unistd.h>
 #include <getopt.h>
+//#include <signal.h>
+#include <iostream>
+#include <exception>
+
 #include "server/CommandServer.h"
 #include "server/GpsDataServer.h"
 #include "hubthread/ServerThread.h"
@@ -14,7 +16,7 @@
 #include "log/macros.h"
 
 
-#define VERSION "0.7 beta"
+#define VERSION "0.7.1 beta"
 
 #define DEFAULT_TCP "9990"
 #define DEFAULT_UDP "9991"
@@ -26,6 +28,8 @@
 void print_help(char* argv[]);
 void print_version();
 void start_gpshub(char* port_cmd, char* port_gps, int num_thread);
+//void register_signal_handlers();
+//void handle_stop(int signo);
 
 int main(int argc, char *argv[]) {
     char* port_cmd = DEFAULT_TCP;
@@ -145,6 +149,10 @@ void print_version() {
     exit(0);
 }
 
+CommandServer* global_cmdsrv;
+GpsDataServer* global_gpssrv;
+std::vector<CoordsBroadcastThread>* global_bthreads;
+
 void start_gpshub(char* port_cmd, char* port_gps, int thread_num) {
     LOG_INFO("Starting gpshub...");
 
@@ -168,15 +176,52 @@ void start_gpshub(char* port_cmd, char* port_gps, int thread_num) {
     //bthread.start();
     std::vector<CoordsBroadcastThread> bthreads(thread_num,
         CoordsBroadcastThread(&id_umap, &nick_umap, &uqueue, gpssrv.getUdpSocket()));
+
+    //global_cmdsrv = &cmdsrv;
+    //global_gpssrv = &gpssrv;
+    //lobal_bthreads = &bthreads;
+    //register_signal_handlers();
+
+    // start broadcasting threads
     for (int i = 0; i < thread_num; i++) {
         bthreads[i].start();
     }
 
+    // start gps data server
     sthread.start();
+
+    // start command server
     try {
         cmdsrv.loop();
     } catch (std::exception& e) {
         LOG_ERROR("Server loop error: " << e.what());
         exit(1);
     }
+
 }
+/*
+void register_signal_handlers() {
+
+    struct sigaction sigint_handler;
+    sigint_handler.sa_handler = handle_stop;
+    //sigint_handler.sa_handler = SIG_IGN;
+    sigaction(SIGINT, &sigint_handler, NULL);
+
+    struct sigaction sigusr1_handler;
+    //sigusr1_handler.sa_handler = handle_stop;
+    sigint_handler.sa_handler = SIG_IGN;
+    sigaction(SIGUSR1, &sigusr1_handler, NULL);
+
+}
+
+void handle_stop(int signo) {
+    LOG_INFO("Stopping on signal: " << sys_siglist[signo]);
+
+    //global_cmdsrv->stop();
+    //global_gpssrv;
+    //global_bthreads;
+
+    //sleep(15);
+    //LOG_INFO("bye");
+}
+*/

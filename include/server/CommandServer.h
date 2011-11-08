@@ -7,7 +7,7 @@
 #include "socket/Epoll.h"
 #include "thread/SyncMap.h"
 #include "user/User.h"
-#include "server/EventData.h"
+#include "server/Session.h"
 
 
 class CommandServer : public Server {

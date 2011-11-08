@@ -400,7 +400,7 @@
 	<cstring>
 	<functional>
 
-1319129976 source:/home/mad/workspace/gpshub/src/hubthread/CoordsBroadcastThread.cpp
+1320677022 source:/home/mad/workspace/gpshub/src/hubthread/CoordsBroadcastThread.cpp
 	<iostream>
 	<iterator>
 	<ext/hash_set>
@@ -493,7 +493,7 @@
 
 1317903835 /home/mad/workspace/gpshub/include/user/Coordinates.h
 
-1319100106 /home/mad/workspace/gpshub/include/socket/Socket.h
+1319537578 /home/mad/workspace/gpshub/include/socket/Socket.h
 	"socket/SocketException.h"
 	<netdb.h>
 	<sys/socket.h>
@@ -503,7 +503,7 @@
 	<errno.h>
 	<stdexcept>
 
-1319101156 /home/mad/workspace/gpshub/include/socket/netutil.h
+1320670676 /home/mad/workspace/gpshub/include/socket/netutil.h
 	<sys/socket.h>
 
 1317903835 source:/home/mad/workspace/gpshub/src/hubthread/CoordsUpdateThread.cpp
@@ -524,10 +524,9 @@
 
 1317903835 /home/mad/workspace/gpshub/include/server/Server.h
 
-1319309104 source:/home/mad/workspace/gpshub/src/main.cpp
+1320745056 source:/home/mad/workspace/gpshub/src/main.cpp
 	<unistd.h>
 	<getopt.h>
-	<signal.h>
 	<iostream>
 	<exception>
 	"server/CommandServer.h"
@@ -541,24 +540,24 @@
 	"user/UserIdGenerator.h"
 	"log/macros.h"
 
-1319312618 /home/mad/workspace/gpshub/include/server/CommandServer.h
+1320754507 /home/mad/workspace/gpshub/include/server/CommandServer.h
 	"server/Server.h"
 	"server/CommandHandler.h"
 	"socket/Socket.h"
 	"socket/Epoll.h"
 	"thread/SyncMap.h"
 	"user/User.h"
-	"server/EventData.h"
+	"server/Session.h"
 
-1319290243 /home/mad/workspace/gpshub/include/server/CommandHandler.h
+1320754528 /home/mad/workspace/gpshub/include/server/CommandHandler.h
 	"user/dstypes.h"
 	"socket/Epoll.h"
 	"server/CmdPkg.h"
 	"user/User.h"
 	"user/UserIdGenerator.h"
-	"server/EventData.h"
+	"server/Session.h"
 
-1319312340 /home/mad/workspace/gpshub/include/socket/Epoll.h
+1320745332 /home/mad/workspace/gpshub/include/socket/Epoll.h
 	"socket/Socket.h"
 	"socket/EpollException.h"
 	"util/CircularBuffer.h"
@@ -570,7 +569,7 @@
 
 1317903835 /home/mad/workspace/gpshub/include/util/CircularBuffer.h
 
-1319445567 /home/mad/workspace/gpshub/include/server/CmdPkg.h
+1320670844 /home/mad/workspace/gpshub/include/server/CmdPkg.h
 
 1317903835 /home/mad/workspace/gpshub/include/user/UserIdGenerator.h
 	"user/dstypes.h"
@@ -582,13 +581,13 @@
 	"user/dstypes.h"
 	"user/User.h"
 
-1319445668 source:/home/mad/workspace/gpshub/src/server/CmdPkg.cpp
+1320674473 source:/home/mad/workspace/gpshub/src/server/CmdPkg.cpp
 	"server/CmdPkg.h"
 	"stdlib.h"
 	"socket/netutil.h"
 	<string.h>
 
-1319313111 source:/home/mad/workspace/gpshub/src/server/CommandServer.cpp
+1320754554 source:/home/mad/workspace/gpshub/src/server/CommandServer.cpp
 	<iostream>
 	<sys/socket.h>
 	<fcntl.h>
@@ -602,7 +601,7 @@
 	"server/CmdPkg.h"
 	"log/macros.h"
 
-1319129889 source:/home/mad/workspace/gpshub/src/server/GpsDataServer.cpp
+1320673125 source:/home/mad/workspace/gpshub/src/server/GpsDataServer.cpp
 	<sys/socket.h>
 	<netinet/in.h>
 	<iostream>
@@ -612,7 +611,7 @@
 	"socket/netutil.h"
 	"log/macros.h"
 
-1319369697 source:/home/mad/workspace/gpshub/src/socket/Epoll.cpp
+1320753501 source:/home/mad/workspace/gpshub/src/socket/Epoll.cpp
 	"socket/Epoll.h"
 	"socket/EpollException.h"
 	<iostream>
@@ -621,7 +620,7 @@
 1319129817 source:/home/mad/workspace/gpshub/src/socket/EpollException.cpp
 	"socket/EpollException.h"
 
-1319283016 source:/home/mad/workspace/gpshub/src/socket/Socket.cpp
+1319540000 source:/home/mad/workspace/gpshub/src/socket/Socket.cpp
 	"socket/Socket.h"
 	"socket/SocketException.h"
 	<fcntl.h>
@@ -635,7 +634,7 @@
 1319129830 source:/home/mad/workspace/gpshub/src/socket/SocketException.cpp
 	"socket/SocketException.h"
 
-1319119533 source:/home/mad/workspace/gpshub/src/socket/netutil.cpp
+1320670794 source:/home/mad/workspace/gpshub/src/socket/netutil.cpp
 	"socket/netutil.h"
 	<netinet/in.h>
 	<arpa/inet.h>
@@ -693,7 +692,7 @@
 	"util/CircularBuffer.h"
 	"stdlib.h"
 
-1319288040 source:/home/mad/workspace/gpshub/src/server/CommandHandler.cpp
+1320754475 source:/home/mad/workspace/gpshub/src/server/CommandHandler.cpp
 	"server/CommandHandler.h"
 	<iostream>
 	<string.h>
@@ -719,6 +718,11 @@
 	"thread/ThreadException.h"
 
 1319290180 /home/mad/workspace/gpshub/include/server/EventData.h
+	"socket/Socket.h"
+	"util/CircularBuffer.h"
+	"user/User.h"
+
+1320754050 /home/mad/workspace/gpshub/include/server/Session.h
 	"socket/Socket.h"
 	"util/CircularBuffer.h"
 	"user/User.h"

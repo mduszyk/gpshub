@@ -25,7 +25,7 @@ void CoordsBroadcastThread::run() {
 
     LOG_INFO("Starting broadcasting thread: " << threadId);
 
-    while (true) {
+    while(true) {
         int id = uqueue->pull();
         u = id_umap->get(id);
         LOG_DEBUG("Thread: " << threadId << ", pulled user: " << u->getNick());

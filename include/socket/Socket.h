@@ -45,7 +45,11 @@ class Socket
 };
 
 inline std::ostream& operator<<(std::ostream& stream, const Socket& sock) {
-    return stream << sock.host << ":" << sock.port;
+    if (sock.host == NULL)
+        stream << "localhost";
+    else
+        stream << sock.host;
+    return stream << ":" << sock.port;
 }
 
 #endif // SOCKET_H

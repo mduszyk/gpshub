@@ -34,17 +34,37 @@ int toint(char* buf, int index) {
     return (int) ntohl(*netval);
 }
 
+unsigned int touint(char* buf, int index) {
+    unsigned int* netval = (unsigned int*) &buf[index];
+    return (unsigned int) ntohl(*netval);
+}
+
 short toshort(char* buf, int index) {
     short* netval = (short*) &buf[index];
     return (short) ntohs(*netval);
 }
 
+unsigned short toushort(char* buf, int index) {
+    unsigned short* netval = (unsigned short*) &buf[index];
+    return (unsigned short) ntohs(*netval);
+}
+
 void tobytes(char* buf, int index, short val) {
+    short netval = htons(val);
+    memcpy(&buf[index], &netval, sizeof netval);
+}
+
+void tobytes(char* buf, int index, unsigned short val) {
     unsigned short netval = htons(val);
     memcpy(&buf[index], &netval, sizeof netval);
 }
 
 void tobytes(char* buf, int index, int val) {
+    int netval = htonl(val);
+    memcpy(&buf[index], &netval, sizeof netval);
+}
+
+void tobytes(char* buf, int index, unsigned int val) {
     unsigned int netval = htonl(val);
     memcpy(&buf[index], &netval, sizeof netval);
 }

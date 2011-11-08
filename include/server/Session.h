@@ -1,11 +1,11 @@
-#ifndef EVENTDATA_H_INCLUDED
-#define EVENTDATA_H_INCLUDED
+#ifndef SESSION_H_INCLUDED
+#define SESSION_H_INCLUDED
 
 #include "socket/Socket.h"
 #include "util/CircularBuffer.h"
 #include "user/User.h"
 
-struct EventData {
+struct Session {
     Socket* sock;
     CircularBuffer* buf;
     User* user;
@@ -13,4 +13,4 @@ struct EventData {
 };
 
 
-#endif // EVENTDATA_H_INCLUDED
+#endif // SESSION_H_INCLUDED

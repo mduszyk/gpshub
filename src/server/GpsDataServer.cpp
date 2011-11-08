@@ -96,12 +96,11 @@ void GpsDataServer::sendUdpInitAck(User* u, char status) {
     '-----------------'---------------'--------------'----------------'
 */
 void GpsDataServer::processCoordinates() {
-    LOG_DEBUG("PKG type: " << toint(buf, 0)
-         << ", len: " <<  n
+    LOG_DEBUG("GPSPKG id: " << touint(buf, 0)
          << " " <<  toint(buf, 4)
          << " " <<  toint(buf, 8));
 
-    int id = toint(buf, 0);
+    int id = touint(buf, 0);
 
     User* u = umap->get(id);
     if (u == NULL) {

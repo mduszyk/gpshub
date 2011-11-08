@@ -18,20 +18,20 @@ CommandHandler::~CommandHandler() {
     //dtor
 }
 
-void CommandHandler::handle(CmdPkg* pkg, EventData* edata) {
+void CommandHandler::handle(CmdPkg* pkg, Session* session) {
     LOG_DEBUG("CMD_PKG, type: " << (int)pkg->getType() << ", length: " << pkg->getLen() << ", data: " << pkg->getData());
 
     switch (pkg->getType()) {
         case CmdPkg::REGISTER_NICK:
-            registerNick(pkg, edata);
+            registerNick(pkg, session);
             break;
 
         case CmdPkg::ADD_BUDDIES:
-            addBuddies(pkg, edata);
+            addBuddies(pkg, session);
             break;
 
         case CmdPkg::REMOVE_BUDDIES:
-            removeBuddies(pkg, edata);
+            removeBuddies(pkg, session);
             break;
 
         default:
@@ -41,7 +41,7 @@ void CommandHandler::handle(CmdPkg* pkg, EventData* edata) {
 
 }
 
-void CommandHandler::registerNick(CmdPkg* pkg, EventData* edata) {
+void CommandHandler::registerNick(CmdPkg* pkg, Session* session) {
     LOG_DEBUG("Nick: " << pkg->getData());
 
     // check if nick is free
@@ -50,7 +50,7 @@ void CommandHandler::registerNick(CmdPkg* pkg, EventData* edata) {
         // send register nick ack with nick taken status
         CmdPkg pkg_fail(CmdPkg::REGISTER_NICK_ACK, 4);
         pkg_fail.getData()[0] = 0;
-        edata->sock->Send(pkg_fail.getBytes(), pkg_fail.getLen());
+        session->sock->Send(pkg_fail.getBytes(), pkg_fail.getLen());
         return;
     }
 
@@ -61,7 +61,7 @@ void CommandHandler::registerNick(CmdPkg* pkg, EventData* edata) {
         // send register nick ack with too many users status
         CmdPkg pkg_fail(CmdPkg::REGISTER_NICK_ACK, 4);
         pkg_fail.getData()[0] = 2;
-        edata->sock->Send(pkg_fail.getBytes(), pkg_fail.getLen());
+        session->sock->Send(pkg_fail.getBytes(), pkg_fail.getLen());
         return;
     }
 
@@ -72,16 +72,16 @@ void CommandHandler::registerNick(CmdPkg* pkg, EventData* edata) {
 
     // create user
     User* usr = new User(id, nick);
-    usr->setSockPtr(edata->sock);
+    usr->setSockPtr(session->sock);
 
     // add to user maps
     nick_umap->put(nick, usr);
     id_umap->put(id, usr);
 
-    // store reference to user in epoll edata
-    edata->user = usr;
+    // store reference to user in session
+    session->user = usr;
 
-    LOG_INFO("Logged in, user: " << *usr << ", socket: " << *(edata->sock));
+    LOG_INFO("Logged in, user: " << *usr << ", socket: " << *(session->sock));
 
 
     // send rgister nick ack with generated id
@@ -89,7 +89,7 @@ void CommandHandler::registerNick(CmdPkg* pkg, EventData* edata) {
     pkg_ok.getData()[0] = 1;
     pkg_ok.setInt(1, id);
     LOG_DEBUG("Sending ACK, len: " << pkg_ok.getLen());
-    edata->sock->Send(pkg_ok.getBytes(), pkg_ok.getLen());
+    session->sock->Send(pkg_ok.getBytes(), pkg_ok.getLen());
 
     // send init udp request
     int token = rand();
@@ -97,16 +97,16 @@ void CommandHandler::registerNick(CmdPkg* pkg, EventData* edata) {
     CmdPkg init_udp(CmdPkg::INITIALIZE_UDP, 7);
     init_udp.setInt(0, token);
     LOG_DEBUG("Sending init udp request, token: " << token);
-    edata->sock->Send(init_udp.getBytes(), init_udp.getLen());
+    session->sock->Send(init_udp.getBytes(), init_udp.getLen());
 
 }
 
-void CommandHandler::addBuddies(CmdPkg* pkg, EventData* edata) {
+void CommandHandler::addBuddies(CmdPkg* pkg, Session* session) {
     LOG_DEBUG("buddies: " << pkg->getData());
-    User* usr = edata->user;
+    User* usr = session->user;
 
     if (usr == NULL) {
-        LOG_WARN("Attempt to add buddies before login: " << *(edata->sock));
+        LOG_WARN("Attempt to add buddies before login: " << *(session->sock));
         return;
     }
 
@@ -164,17 +164,17 @@ void CommandHandler::addBuddies(CmdPkg* pkg, EventData* edata) {
             offset += n;
         }
         // send buddies ids pkg
-        edata->sock->Send(pkg_ids.getBytes(), pkg_ids.getLen());
+        session->sock->Send(pkg_ids.getBytes(), pkg_ids.getLen());
     }
 
 }
 
-void CommandHandler::removeBuddies(CmdPkg* pkg, EventData* edata) {
+void CommandHandler::removeBuddies(CmdPkg* pkg, Session* session) {
     LOG_DEBUG("buddies: " << pkg->getData());
-    User* usr = edata->user;
+    User* usr = session->user;
 
     if (usr == NULL) {
-        LOG_WARN("Attempt to remove buddies before login: " << *(edata->sock));
+        LOG_WARN("Attempt to remove buddies before login: " << *(session->sock));
         return;
     }
 

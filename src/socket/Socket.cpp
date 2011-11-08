@@ -210,30 +210,30 @@ Socket* Socket::Accept() throw(SocketException) {
         throw SocketException("accept failed, try to check if socket is binded and listening");
     }
 
-    Socket* sock = new Socket(new_fd);
+    Socket* new_sock = new Socket(new_fd);
     // copy addr struct to new socket
-    memcpy(&sock->addr, &new_addr, addr_size);
+    memcpy(&new_sock->addr, &new_addr, addr_size);
     if (new_addr.ss_family == AF_INET) {
         // IPv4
-        char* host = (char*) malloc(INET_ADDRSTRLEN);
-        char* port = (char*) malloc(6);
+        char* new_host = (char*) malloc(INET_ADDRSTRLEN);
+        char* new_port = (char*) malloc(6);
         struct sockaddr_in* sa = (struct sockaddr_in*) &new_addr;
-        inet_ntop(AF_INET, &(sa->sin_addr), host, INET_ADDRSTRLEN);
-        sprintf(port, "%u", sa->sin_port);
-        sock->setHost(host);
-        sock->setPort(port);
+        inet_ntop(AF_INET, &(sa->sin_addr), new_host, INET_ADDRSTRLEN);
+        sprintf(new_port, "%u", sa->sin_port);
+        new_sock->setHost(new_host);
+        new_sock->setPort(new_port);
     } else if (new_addr.ss_family == AF_INET6) {
         // IPv6
-        char* host = (char*) malloc(INET6_ADDRSTRLEN);
-        char* port = (char*) malloc(6);
+        char* new_host = (char*) malloc(INET6_ADDRSTRLEN);
+        char* new_port = (char*) malloc(6);
         struct sockaddr_in6* sa6 = (sockaddr_in6*) &new_addr;
-        inet_ntop(AF_INET6, &(sa6->sin6_addr), host, INET6_ADDRSTRLEN);
-        sprintf(port, "%u", sa6->sin6_port);
-        sock->setHost(host);
-        sock->setPort(port);
+        inet_ntop(AF_INET6, &(sa6->sin6_addr), new_host, INET6_ADDRSTRLEN);
+        sprintf(new_port, "%u", sa6->sin6_port);
+        new_sock->setHost(new_host);
+        new_sock->setPort(new_port);
     }
 
-    return sock;
+    return new_sock;
 }
 
 void Socket::Close() throw(SocketException) {
