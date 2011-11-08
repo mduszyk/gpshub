@@ -51,22 +51,22 @@ unsigned short toushort(char* buf, int index) {
 
 void tobytes(char* buf, int index, short val) {
     short netval = htons(val);
-    memcpy(&buf[index], &netval, sizeof netval);
+    memcpy(buf + index, &netval, sizeof netval);
 }
 
 void tobytes(char* buf, int index, unsigned short val) {
     unsigned short netval = htons(val);
-    memcpy(&buf[index], &netval, sizeof netval);
+    memcpy(buf + index, &netval, sizeof netval);
 }
 
 void tobytes(char* buf, int index, int val) {
     int netval = htonl(val);
-    memcpy(&buf[index], &netval, sizeof netval);
+    memcpy(buf + index, &netval, sizeof netval);
 }
 
 void tobytes(char* buf, int index, unsigned int val) {
     unsigned int netval = htonl(val);
-    memcpy(&buf[index], &netval, sizeof netval);
+    memcpy(buf + index, &netval, sizeof netval);
 }
 
 /**

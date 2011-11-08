@@ -18,11 +18,13 @@ class CoordsBroadcastThread : public Thread {
         void run();
 
     private:
+        static const int BUF_LEN = 16;
+
         BlockingQueue<int>* uqueue;
         IdUserMap* id_umap;
         NickUserMap* nick_umap;
         Socket* udpSocket;
-        char* buf_pkg;
+        char buf[BUF_LEN];
         void broadcast(User* u, Coordinates* coords);
 
 };

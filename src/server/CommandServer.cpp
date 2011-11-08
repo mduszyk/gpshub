@@ -39,9 +39,7 @@ void CommandServer::loop() {
 
     Session* server_session = new Session();
     server_session->ptr = this;
-    server_session->sock = tcpSocket;
-    server_session->buf = NULL;
-    server_session->user = NULL;
+    //server_session->sock = tcpSocket;
 
     EpollEvent* server_event = new EpollEvent();
     server_event->fd = tcpSocket->getFd();
@@ -87,7 +85,7 @@ void CommandServer::closeConnectionClbk(EpollEvent* event) {
     which means one or more incoming connections.
 */
 void CommandServer::incomingConnection(EpollEvent* event) {
-    Session* server_session = (Session*) event->ptr;
+    //Session* server_session = (Session*) event->ptr;
     LOG_DEBUG("Connections waiting for accept");
 
     Socket* new_sock;
@@ -95,7 +93,8 @@ void CommandServer::incomingConnection(EpollEvent* event) {
     for(;;) {
         try {
             new_sock = tcpSocket->Accept();
-            // TODO find out why it is not working (segmantation fault)
+            // TODO find out why this is not working when buffer in broadcast thread
+            // is allocated by malloc (segmantation fault)
             //new_sock = server_session->sock->Accept();
             LOG_DEBUG("Accepted connection: " << *new_sock);
         } catch (SocketException& e) {

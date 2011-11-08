@@ -29,7 +29,7 @@ void GpsDataServer::loop() {
     udpSocket->Bind();
 
     while(listen) {
-        n = udpSocket->Recvfrom(buf, buf_len - 1, &their_addr);
+        n = udpSocket->Recvfrom(buf, BUF_LEN, &their_addr);
 
         if (n == 8)
             initAddrUdp();

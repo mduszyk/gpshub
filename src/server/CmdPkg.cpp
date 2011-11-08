@@ -5,7 +5,7 @@
 
 
 CmdPkg::CmdPkg(char* buf) {
-    unsigned short len = toushort(buf, 1);
+    unsigned short len = toshort(buf, 1);
     bytes = (char*) malloc(len + 1);
     bytes[len] = '\0';
 

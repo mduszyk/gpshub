@@ -17,12 +17,13 @@ class GpsDataServer : public Server {
         Socket* getUdpSocket();
 
     private:
+        static const int BUF_LEN = 128;
+
         Socket* udpSocket;
         IdUserMap* umap;
         BlockingQueue<int>* uqueue;
         bool listen;
-        static const int buf_len = 128;
-        char buf[buf_len];
+        char buf[BUF_LEN];
         struct sockaddr_storage their_addr;
         int n;
         void processCoordinates();

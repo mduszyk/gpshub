@@ -12,11 +12,12 @@ CoordsBroadcastThread::CoordsBroadcastThread(IdUserMap* id_umap, NickUserMap* ni
     this->nick_umap = nick_umap;
     this->uqueue = uqueue;
     this->udpSocket = udpSocket;
-    buf_pkg = (char*) malloc(16);
+    // this way of creating buffer causes problems (later segmentation fault), but why?
+    //buf = (char*) malloc(16);
 }
 
 CoordsBroadcastThread::~CoordsBroadcastThread() {
-    free(buf_pkg);
+    //free(buf);
 }
 
 void CoordsBroadcastThread::run() {
@@ -51,13 +52,14 @@ void CoordsBroadcastThread::run() {
 }
 
 void CoordsBroadcastThread::broadcast(User* u, Coordinates* coords) {
+    LOG_DEBUG("broadcasting: " << u->getNick());
 
     BuddiesSet buddies = u->getBuddies();
     ScopeLockRd readlock(buddies.getLock());
 
     __gnu_cxx::hash_set<char*, StrHash, StrEqual>::iterator end = buddies.getSet().end();
 
-    int pkg_len = 12;
+    int pkg_len;
     for (__gnu_cxx::hash_set<char*, StrHash, StrEqual>::iterator nick = buddies.getSet().begin(); nick != end; ++nick) {
         if (nick_umap->count(*nick) > 0) {
 
@@ -67,15 +69,16 @@ void CoordsBroadcastThread::broadcast(User* u, Coordinates* coords) {
                 continue;
             }
 
-            tobytes(buf_pkg, 0, u->getId());
-            tobytes(buf_pkg, 4, coords->longitude);
-            tobytes(buf_pkg, 8, coords->latitude);
+            tobytes(buf, 0, u->getId());
+            tobytes(buf, 4, coords->longitude);
+            tobytes(buf, 8, coords->latitude);
+            pkg_len = 12;
             if (coords->altitude > 0) {
-                tobytes(buf_pkg, 12, coords->altitude);
+                tobytes(buf, 12, coords->altitude);
                 pkg_len = 16;
             }
 
-            udpSocket->Sendto(buf_pkg, pkg_len, buddy->getAddrUdpPtr());
+            udpSocket->Sendto(buf, pkg_len, buddy->getAddrUdpPtr());
             LOG_DEBUG(u->getNick() << " -> " << *nick);
         }
     }
