@@ -23,6 +23,7 @@ class GpsChannel:
         self.sock.send(ba)
     
     def send_pos(self, pos):
+        """ pos is a tuple: (longitude, latitude) """
         ba = bytearray()
         ba.extend(self.uid)
         ba.extend(bytes(c_uint32(socket.htonl(pos[0]))))
