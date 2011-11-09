@@ -4,11 +4,8 @@ import re
 import sys
 import time
 import getopt
-import threading
 
-from gpshub_pyclient.cmdchannel import CmdChannel, CmdChannelListener
-from gpshub_pyclient.gpschannel import GpsChannel, GpsChannelListener
-
+from gpshub_pyclient.client import GpshubClient
 
 nick = 'foobar'
 buddies = 'foo,bar,baz'
@@ -59,80 +56,11 @@ def read_gps_positions(file_name):
                 # yield (longitude, latitude)
                 yield (int(a[5].replace('.', '')),  int(a[3].replace('.', '')))
 
-class GpshubFakeClient():
-    
-    def __init__(self, nick, buddies, host, port_cmd, port_gps):
-        self.nick = nick
-        self.buddies = buddies
-        self.host = host
-        self.port_cmd = port_cmd
-        self.port_gps = port_gps
-        self.userid = None
-        self.token = None
-        self.cmd_channel = None
-        self.cmd_listener = None
-        self.gps_channel = None
-        self.gps_listener = None
-        # initialize condition variable
-        self.cv = threading.Condition()
-        self.udp_initialized = False
-    
-    def start_cmd_channel(self):
-        self.cmd_channel = CmdChannel(self.host, self.port_cmd)
-        
-        self.cmd_listener = CmdChannelListener(self.cmd_channel)
-        self.cmd_listener.daemon = True
-        self.cmd_listener.add_observer(self.handle_cmd_pkg)
-        self.cmd_listener.start()
-        
-        self.cmd_channel.register_nick(self.nick)
-        
-    def start_gps_channel(self):
-        self.gps_channel = GpsChannel(self.host, self.port_gps, self.userid)
-        
-        self.gps_listener = GpsChannelListener(self.gps_channel, self.nick)
-        self.gps_listener.daemon = True
-        self.gps_listener.add_observer(self.handle_gps_pkg)
-        self.gps_listener.start()
-        
-        threading.Thread(target=self._initialize_udp).start()
-    
-    def _initialize_udp(self):
-        """ Method init_udp must be called in loop until ack arrives
-            because it goes throudht UDP and packet might be lost.
-        """
-        while not self.udp_initialized:
-            self.gps_channel.init_udp(self.token)
-            time.sleep(0.33)
+def handle_cmd_pkg(pkg):
+    print('CMDPKG', pkg)
 
-    def handle_cmd_pkg(self, pkg):
-        print('CMDPKG', pkg)
-        
-        if pkg['type'] == CmdChannel.REGISTER_NICK_ACK:
-            if pkg['status'] == 1:
-                self.userid = pkg['userid']
-                self.cmd_channel.add_buddies(buddies)
-                if self.token is not None:
-                    self.start_gps_channel()
-            else:
-                print('ERROR couldn\'t register nick')
-                exit(1)
-        
-        if pkg['type'] == CmdChannel.INITIALIZE_UDP:
-            self.token = pkg['token']
-            if self.userid is not None:
-                self.start_gps_channel()
-        
-        if pkg['type'] == CmdChannel.INITIALIZE_UDP_ACK:
-            if pkg['status'] == 1:
-                self.udp_initialized = True
-                self.cv.acquire()
-                self.cv.notify()
-                self.cv.release()
-
-    def handle_gps_pkg(self, pkg):
-        print('GPSPKG', pkg['uid'], pkg['lon'], pkg['lat'])
-
+def handle_gps_pkg(pkg):
+    print('GPSPKG', pkg['uid'], pkg['lon'], pkg['lat'])
 
 if __name__== "__main__":
     parse_opts()
@@ -142,20 +70,17 @@ if __name__== "__main__":
     print_params()
     print()
     
-    hub_client = GpshubFakeClient(nick, buddies, host, port_cmd, port_gps)
-    hub_client.start_cmd_channel()
-
-    # wait for gps channel to be initialized
-    hub_client.cv.acquire()
-    hub_client.cv.wait()
-    hub_client.cv.release()
+    gpshub = GpshubClient(nick, buddies, host, port_cmd, port_gps)
+    gpshub.external_cmd_pkg_handler = handle_cmd_pkg
+    gpshub.external_gps_pkg_handler = handle_gps_pkg
+    gpshub.connect()
 
     try:
         # send positions to gpshub
         for pos in read_gps_positions(gps_file):
             time.sleep(0.6)
-            hub_client.gps_channel.send_pos(pos)
+            gpshub.gps_channel.send_pos(pos)
     except KeyboardInterrupt:
-        hub_client.gps_listener.stop()
-        hub_client.cmd_listener.stop()
+        gpshub.gps_listener.stop()
+        gpshub.cmd_listener.stop()
         print()
