@@ -75,6 +75,7 @@ class GpshubFakeClient():
         self.gps_listener = None
         # initialize condition variable
         self.cv = threading.Condition()
+        self.udp_initialized = False
     
     def start_cmd_channel(self):
         self.cmd_channel = CmdChannel(self.host, self.port_cmd)
@@ -94,9 +95,15 @@ class GpshubFakeClient():
         self.gps_listener.add_observer(self.handle_gps_pkg)
         self.gps_listener.start()
         
-        # TODO this goes through UDP so it should be invoked
-        # in loop until init ack received
-        self.gps_channel.init_udp(self.token)
+        threading.Thread(target=self._initialize_udp).start()
+    
+    def _initialize_udp(self):
+        """ Method init_udp must be called in loop until ack arrives
+            because it goes throudht UDP and packet might be lost.
+        """
+        while not self.udp_initialized:
+            self.gps_channel.init_udp(self.token)
+            time.sleep(0.33)
 
     def handle_cmd_pkg(self, pkg):
         print('CMDPKG', pkg)
@@ -118,6 +125,7 @@ class GpshubFakeClient():
         
         if pkg['type'] == CmdChannel.INITIALIZE_UDP_ACK:
             if pkg['status'] == 1:
+                self.udp_initialized = True
                 self.cv.acquire()
                 self.cv.notify()
                 self.cv.release()
