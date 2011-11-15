@@ -47,7 +47,7 @@ def parse_opts():
         else:
             assert False, "unhandled option"
 
-def read_gps_positions(file_name):
+def read_gps_nmea(file_name):
     fd = open(file_name, 'r')
     for line in fd:
         if re.match('\$GPRMC', line):
@@ -56,11 +56,18 @@ def read_gps_positions(file_name):
                 # yield (longitude, latitude)
                 yield (int(a[5].replace('.', '')),  int(a[3].replace('.', '')))
 
+def read_gps_simple(file_name):
+    fd = open(file_name, 'r')
+    for line in fd:
+            a = line.split(' ')
+            # yield (longitude, latitude)
+            yield (int(a[1]),  int(a[0]))
+
 def handle_cmd_pkg(pkg):
     print('CMDPKG', pkg)
 
 def handle_gps_pkg(pkg):
-    print('GPSPKG', pkg['uid'], pkg['lon'], pkg['lat'])
+    print('GPSPKG', pkg['uid'], pkg['lat'], pkg['lon'])
 
 if __name__== "__main__":
     parse_opts()
@@ -77,8 +84,9 @@ if __name__== "__main__":
 
     try:
         # send positions to gpshub
-        for pos in read_gps_positions(gps_file):
-            time.sleep(0.6)
+        for pos in read_gps_nmea(gps_file):
+        #for pos in read_gps_simple(gps_file):
+            time.sleep(1.0)
             gpshub.gps_channel.send_pos(pos)
     except KeyboardInterrupt:
         gpshub.gps_listener.stop()
