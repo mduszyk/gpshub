@@ -1,8 +1,12 @@
 --------------------------------------------------------------------------------
- 1. gpshub general info
+ 1. Gpshub general info
 --------------------------------------------------------------------------------
 
-gpshub - is a server designed to allow sharing gps positions
+Gpshub is a server written in C++, it allows sharing gps positions between hosts
+connected to the network. Each host declares a list of buddies (other hosts) who
+are allowed to get its position data. Server uses UDP connection for transfering
+gps data what should ensure the smallest possible amount of data transfered. Its
+goal is to enable applications to display real-time positions of other devices. 
 
             .-----------.
     .------>|  gpshub   |<-----.
@@ -14,8 +18,7 @@ gpshub - is a server designed to allow sharing gps positions
                | gps |
                '-----'
 
-gps - application using gps device which shares position with others
-
+gps - host which shares position with others, position data come from gps device 
 
  .------------.             .--------.
  |   gpshub   |<----TCP-----|  gps   |
@@ -23,7 +26,44 @@ gps - application using gps device which shares position with others
  '------------'             '--------'
 
 TCP - command channel
-UDP - gps position channel
+UDP - gps data channel
+
 
 --------------------------------------------------------------------------------
+ 2. Requirements
+--------------------------------------------------------------------------------
+
+- Linux
+- epoll I/O event notification facility - sys/epoll.h since Linux kernel 2.5.44,
+  added to glibc in version 2.3.2
+
+
+--------------------------------------------------------------------------------
+ 2. Usage:
+--------------------------------------------------------------------------------
+
+gpshub [-t TCP_PORT] [-u UDP_PORT] [-l LOG_LEVEL] [-f LOG_FILE]
+       [-n THREAD_NUMBER] [-v] [-h]
+
+  -t, --tcp
+      set tcp port, default: 9990
+  -u, --udp
+      set udp port, default: 9991
+
+  -l, --log-level
+      set log level, default: DEBUG2
+      available levels: ERROR, WARNING, INFO, DEBUG, DEBUG1, DEBUG2
+  -f, --log-file
+      set log output file, default: stdout
+      accepted values: stdout, stderr, filename
+
+  -n, --thread-number
+      set number of consumer threads, default: 1
+      accepted values grather than 0
+
+  -v, --version
+      print version
+
+  -h, --help
+      print this help
 
