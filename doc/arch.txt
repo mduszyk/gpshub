@@ -1,0 +1,30 @@
+
+  .--------------------------------.          .------------------------------.
+  |  Command server thread (TCP)   |          | Gps data server thread (UDP) |
+  |--------------------------------|          |------------------------------|
+  | - non-blocking sockets (epoll) |     .----| - UDP socket loop            |
+  | - handle incomming connection  |     |    | - update user position       |
+  | - handle disconnects           |     |    | - put user id to queue       |
+  | - process commands             |     |    '------------------------------'
+  '--------------------------------'     |                    |
+                   |                   update                put
+                 update                  |                    |
+                   |                     |                    |
+                   v                     |                    v
+      .-------------------------.        |         .--------------------.
+      |       Shared data       |        |         |   blocking queue   |
+      | - id to user hash map   |<-------'         '--------------------'
+      | - nick to user hash map |                       ^          ^
+      '-------------------------'                       |          |
+        ^  ^                                            |          |
+        |  |                   .------------pull--------'         pull
+        |  |                   |                                   |
+        |  |                   |                                   |
+        |  |       .----------------------.        .----------------------.
+        |  |       | Broadcast thread #1  | . . .  | Broadcast thread #n  |
+        |  |       |----------------------|        |----------------------|
+        |  '-read--| - broadcast position |        | - broadcast position |
+        |          |                      |        |                      |
+        |          '----------------------'        '----------------------'
+        |                                                      |
+        '------------------------read--------------------------'
