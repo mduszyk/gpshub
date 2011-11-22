@@ -50,6 +50,7 @@ void CommandHandler::registerNick(CmdPkg* pkg, Session* session) {
         // send register nick ack with nick taken status
         CmdPkg pkg_fail(CmdPkg::REGISTER_NICK_ACK, 4);
         pkg_fail.getData()[0] = 0;
+        // TODO send may return EWOULDBLOCK
         session->sock->Send(pkg_fail.getBytes(), pkg_fail.getLen());
         return;
     }
@@ -61,6 +62,7 @@ void CommandHandler::registerNick(CmdPkg* pkg, Session* session) {
         // send register nick ack with too many users status
         CmdPkg pkg_fail(CmdPkg::REGISTER_NICK_ACK, 4);
         pkg_fail.getData()[0] = 2;
+        // TODO send may return EWOULDBLOCK
         session->sock->Send(pkg_fail.getBytes(), pkg_fail.getLen());
         return;
     }
@@ -89,6 +91,7 @@ void CommandHandler::registerNick(CmdPkg* pkg, Session* session) {
     pkg_ok.getData()[0] = 1;
     pkg_ok.setInt(1, id);
     LOG_DEBUG("Sending ACK, len: " << pkg_ok.getLen());
+    // TODO send may return EWOULDBLOCK
     session->sock->Send(pkg_ok.getBytes(), pkg_ok.getLen());
 
     // send init udp request
@@ -97,6 +100,7 @@ void CommandHandler::registerNick(CmdPkg* pkg, Session* session) {
     CmdPkg init_udp(CmdPkg::INITIALIZE_UDP, 7);
     init_udp.setInt(0, token);
     LOG_DEBUG("Sending init udp request, token: " << token);
+    // TODO send may return EWOULDBLOCK
     session->sock->Send(init_udp.getBytes(), init_udp.getLen());
 
 }
@@ -139,6 +143,7 @@ void CommandHandler::addBuddies(CmdPkg* pkg, Session* session) {
                 // increase ids pkg len
                 ids_pkg_len += n + 1;
                 // send user's id to buddy
+                // TODO send may return EWOULDBLOCK
                 buddy->getSockPtr()->Send(pkg_uid.getBytes(), pkg_uid.getLen());
             }
             a = i + 1;
@@ -164,6 +169,7 @@ void CommandHandler::addBuddies(CmdPkg* pkg, Session* session) {
             offset += n;
         }
         // send buddies ids pkg
+        // TODO send may return EWOULDBLOCK
         session->sock->Send(pkg_ids.getBytes(), pkg_ids.getLen());
     }
 
