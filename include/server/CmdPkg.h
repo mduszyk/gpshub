@@ -31,6 +31,9 @@ class CmdPkg {
 
     private:
         char* bytes;
+        // flag indicating weather package buffer is managed externally
+        // or allocated in this class
+        bool is_extbuf;
 
 };
 

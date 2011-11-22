@@ -11,18 +11,15 @@
 #include "server/CmdPkg.h"
 #include "log/macros.h"
 
-#define MAX_PKG_LEN 512
-
-CommandServer::CommandServer(char* port, IdUserMap* umap, CommandHandler* cmdHandler) {
+CommandServer::CommandServer(char* port, IdUserMap* umap,
+                             CommandHandler* cmdHandler) {
     tcpSocket = new Socket(NULL, port, SOCK_STREAM);
     this->umap = umap;
     this->cmdHandler = cmdHandler;
-    read_buf = (char*) malloc(MAX_PKG_LEN);
 }
 
 CommandServer::~CommandServer() {
     delete tcpSocket;
-    free(read_buf);
 }
 
 void CommandServer::loop() {
@@ -54,7 +51,8 @@ void CommandServer::loop() {
     try {
         epl->loop();
     } catch (EpollException& e) {
-        LOG_ERROR("Epoll loop error: " << e.what() << ": " << strerror(e.getErrno()));
+        LOG_ERROR("Epoll loop error: " << e.what() << ": "
+                  << strerror(e.getErrno()));
     }
 
     delete epl;
@@ -93,15 +91,16 @@ void CommandServer::incomingConnection(EpollEvent* event) {
     for(;;) {
         try {
             new_sock = tcpSocket->Accept();
-            // TODO find out why this is not working when buffer in broadcast thread
-            // is allocated by malloc (segmantation fault)
+            // TODO find out why this is not working when buffer in broadcast
+            // thread is allocated by malloc (segmantation fault)
             //new_sock = server_session->sock->Accept();
             LOG_DEBUG("Accepted connection: " << *new_sock);
         } catch (SocketException& e) {
             if (e.getErrno() == EAGAIN || e.getErrno() == EWOULDBLOCK) {
                 // all incoming connections are processed
             } else {
-                LOG_ERROR("Socket accpet error: " << e.what() << ": " << strerror(e.getErrno()));
+                LOG_ERROR("Socket accpet error: " << e.what() << ": "
+                          << strerror(e.getErrno()));
             }
             break;
         }
@@ -113,7 +112,7 @@ void CommandServer::incomingConnection(EpollEvent* event) {
         Session* new_session = new Session();
         new_session->ptr = this;
         new_session->sock = new_sock;
-        new_session->buf = new CircularBuffer(MAX_PKG_LEN * 2);
+        new_session->buf = new CircularBuffer(CMDPKG_MAX * 2);
 
         EpollEvent* new_event = new EpollEvent();
         new_event->fd = new_sock->getFd();
@@ -142,12 +141,13 @@ void CommandServer::incomingData(EpollEvent* event) {
     unsigned short pkg_len = 0;
     while(true) {
         try {
-            n = session->sock->Recv(read_buf, MAX_PKG_LEN);
+            n = session->sock->Recv(cmd_buf, CMDPKG_MAX);
         } catch (SocketException& e) {
             if (e.getErrno() == EAGAIN) {
                 // EAGAIN means we have read all
             } else {
-                LOG_ERROR("Socket recv error: " << e.what() << ": " << strerror(e.getErrno()));
+                LOG_ERROR("Socket recv error: " << e.what() << ": "
+                          << strerror(e.getErrno()));
             }
             break;
         }
@@ -158,20 +158,21 @@ void CommandServer::incomingData(EpollEvent* event) {
             break;
         }
 
-        session->buf->add(read_buf, n);
+        session->buf->add(cmd_buf, n);
 
         // read pkg header
-        session->buf->read(read_buf, 3);
-        pkg_len = toushort(read_buf, 1);
+        session->buf->read(cmd_buf, 3);
+        pkg_len = toushort(cmd_buf, 1);
 
-        LOG_DEBUG("pkg_len: " << pkg_len << ", buf size: " << session->buf->size());
+        LOG_DEBUG("pkg_len: " << pkg_len << ", buf size: "
+                  << session->buf->size());
 
         if (session->buf->size() >= pkg_len) {
             // we have whole package - process it
-            session->buf->get(read_buf, pkg_len);
-            CmdPkg* pkg = new CmdPkg(read_buf);
-            cmdHandler->handle(pkg, session);
-            delete pkg;
+            session->buf->get(cmd_buf, pkg_len);
+            CmdPkg* cmd = new CmdPkg(cmd_buf);
+            cmdHandler->handle(cmd, session);
+            delete cmd;
         }
     }
 
@@ -189,7 +190,8 @@ void CommandServer::closeConnection(EpollEvent* event) {
     try {
         session->sock->Close();
     } catch (SocketException& e) {
-        LOG_ERROR("Socket close error: " << e.what() << ": " << strerror(e.getErrno()));
+        LOG_ERROR("Socket close error: " << e.what() << ": "
+                  << strerror(e.getErrno()));
     }
 
     delete session->sock;

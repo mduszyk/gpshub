@@ -9,6 +9,7 @@
 #include "user/User.h"
 #include "server/Session.h"
 
+#define CMDPKG_MAX 512
 
 class CommandServer : public Server {
 
@@ -28,7 +29,7 @@ class CommandServer : public Server {
         IdUserMap* umap;
         CommandHandler* cmdHandler;
         Epoll* epl;
-        char* read_buf;
+        char cmd_buf[CMDPKG_MAX];
 
         void incomingConnection(EpollEvent* event);
         void incomingData(EpollEvent* event);

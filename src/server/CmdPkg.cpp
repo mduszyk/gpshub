@@ -5,14 +5,13 @@
 
 
 CmdPkg::CmdPkg(char* buf) {
-    unsigned short len = toshort(buf, 1);
-    bytes = (char*) malloc(len + 1);
-    bytes[len] = '\0';
-
-    memcpy(bytes, buf, len);
+    is_extbuf = true;
+    bytes = buf;
+    bytes[getLen()] = '\0';
 }
 
 CmdPkg::CmdPkg(char type, unsigned short len) {
+    is_extbuf = false;
     bytes = (char*) malloc(len + 1);
     bytes[len] = '\0';
 
@@ -21,7 +20,8 @@ CmdPkg::CmdPkg(char type, unsigned short len) {
 }
 
 CmdPkg::~CmdPkg() {
-    free(bytes);
+    if (!is_extbuf)
+        free(bytes);
 }
 
 char CmdPkg::getType() {

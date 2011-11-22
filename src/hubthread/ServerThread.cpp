@@ -18,6 +18,6 @@ void ServerThread::run() {
         // run server loop
         this->srv->loop();
     } catch (std::exception& e) {
-        LOG_ERROR("Server loop error: " << e.what());
+        LOG_ERROR("Server error: " << e.what());
     }
 }
