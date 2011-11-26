@@ -1,9 +1,9 @@
 # gpshub autoconf configure.ac
 
 AC_PREREQ([2.67])
-AC_INIT([gpshub], [0.7_beta], [misieks@gmail.com])
+AC_INIT([gpshub], [0.7.1_beta], [misieks@gmail.com])
 AC_CONFIG_SRCDIR([src/main.cpp])
-#AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
 AC_PROG_CXX
@@ -39,9 +39,9 @@ AC_ARG_ENABLE(debug,
               [debug=false])
 AM_CONDITIONAL(DEBUG, test x"$debug" = x"true")
 
-AM_INIT_AUTOMAKE([gpshub], [0.7_beta])
+AM_INIT_AUTOMAKE
 
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile include/Makefile src/Makefile])
 AC_OUTPUT
 
 
