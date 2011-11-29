@@ -15,7 +15,7 @@
 #include "user/UserIdGenerator.h"
 #include "log/macros.h"
 
-#include "../config.h"
+#define VERSION "0.7.1_beta"
 
 #define DEFAULT_TCP "9990"
 #define DEFAULT_UDP "9991"

@@ -1,0 +1,57 @@
+CC = g++
+CFLAGS = -Wall -std=c++0x -fexceptions
+CFLAGS_DEBUG = -g3 -DDEBUG -O0
+CFLAGS_RELEASE = -O2
+LDFLAGS = -lpthread -lstdc++
+INCLUDES = -Iinclude -I.
+BINARY = gpshub
+
+.SUFFIXES: .o .cpp
+
+OBJECTS = \
+src/hubthread/CoordsBroadcastThread.o \
+src/hubthread/CoordsUpdateThread.o \
+src/hubthread/ServerThread.o \
+src/main.o \
+src/server/CmdPkg.o \
+src/server/CommandHandler.o \
+src/server/CommandServer.o \
+src/server/GpsDataServer.o \
+src/socket/Epoll.o \
+src/socket/EpollException.o \
+src/socket/Socket.o \
+src/socket/SocketException.o \
+src/socket/netutil.o \
+src/thread/ConditionVariable.o \
+src/thread/Mutex.o \
+src/thread/RwLock.o \
+src/thread/ScopeLock.o \
+src/thread/ScopeLockRd.o \
+src/thread/ScopeLockWr.o \
+src/thread/SyncHashMap.o \
+src/thread/SyncHashSet.o \
+src/thread/SyncMap.o \
+src/thread/SyncSet.o \
+src/thread/Thread.o \
+src/thread/ThreadException.o \
+src/thread/ThreadSyncException.o \
+src/user/User.o \
+src/user/UserIdGenerator.o \
+src/util/CircularBuffer.o
+
+
+%.o : %.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+$(BINARY) : $(OBJECTS)
+	$(CC) $(OBJECTS) $(LDFLAGS) -o $(BINARY)
+
+release : CFLAGS += $(CFLAGS_RELEASE)
+release : $(BINARY)
+
+debug : CFLAGS += $(CFLAGS_DEBUG)
+debug : $(BINARY)
+
+clean:
+	rm -fv $(OBJECTS) $(BINARY)
+
