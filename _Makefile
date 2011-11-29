@@ -3,7 +3,7 @@ CFLAGS = -Wall -std=c++0x -fexceptions
 CFLAGS_DEBUG = -g3 -DDEBUG -O0
 CFLAGS_RELEASE = -O2
 LDFLAGS = -lpthread -lstdc++
-INCLUDES = -Iinclude -I.
+INCLUDES = -Iinclude
 BINARY = gpshub
 
 .SUFFIXES: .o .cpp
