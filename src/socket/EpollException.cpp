@@ -4,7 +4,8 @@ EpollException::EpollException(char* message) : std::runtime_error(message) {
     this->Errno = errno;
 }
 
-EpollException::EpollException(const std::string& message) : std::runtime_error(message) {
+EpollException::EpollException(const std::string& message)
+: std::runtime_error(message) {
     this->Errno = errno;
 }
 

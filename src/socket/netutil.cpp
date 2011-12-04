@@ -10,12 +10,16 @@ bool socket_equals(struct sockaddr_storage* sa1, struct sockaddr_storage* sa2) {
         return false;
 
     if (sa1->ss_family == AF_INET) {
-        return ((struct sockaddr_in*)sa1)->sin_addr.s_addr == ((struct sockaddr_in*)sa2)->sin_addr.s_addr
-            && ((struct sockaddr_in*)sa1)->sin_port == ((struct sockaddr_in*)sa2)->sin_port;
+        return ((struct sockaddr_in*)sa1)->sin_addr.s_addr ==
+            ((struct sockaddr_in*)sa2)->sin_addr.s_addr &&
+            ((struct sockaddr_in*)sa1)->sin_port ==
+            ((struct sockaddr_in*)sa2)->sin_port;
     }
 
-    return memcmp(&((struct sockaddr_in6*)sa1)->sin6_addr, &((struct sockaddr_in6*)sa2)->sin6_addr, sizeof(in6_addr)) == 0
-            && ((struct sockaddr_in6*)sa1)->sin6_port == ((struct sockaddr_in6*)sa2)->sin6_port;
+    return memcmp(&((struct sockaddr_in6*)sa1)->sin6_addr,
+        &((struct sockaddr_in6*)sa2)->sin6_addr, sizeof(in6_addr)) == 0
+        && ((struct sockaddr_in6*)sa1)->sin6_port ==
+        ((struct sockaddr_in6*)sa2)->sin6_port;
 }
 
 bool ip_equals(struct sockaddr_storage* sa1, struct sockaddr_storage* sa2) {
@@ -23,10 +27,12 @@ bool ip_equals(struct sockaddr_storage* sa1, struct sockaddr_storage* sa2) {
         return false;
 
     if (sa1->ss_family == AF_INET) {
-        return ((struct sockaddr_in*)sa1)->sin_addr.s_addr == ((struct sockaddr_in*)sa2)->sin_addr.s_addr;
+        return ((struct sockaddr_in*)sa1)->sin_addr.s_addr ==
+        ((struct sockaddr_in*)sa2)->sin_addr.s_addr;
     }
 
-    return memcmp(&((struct sockaddr_in6*)sa1)->sin6_addr, &((struct sockaddr_in6*)sa2)->sin6_addr, sizeof(in6_addr)) == 0;
+    return memcmp(&((struct sockaddr_in6*)sa1)->sin6_addr,
+        &((struct sockaddr_in6*)sa2)->sin6_addr, sizeof(in6_addr)) == 0;
 }
 
 int toint(char* buf, int index) {

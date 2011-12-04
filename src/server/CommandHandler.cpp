@@ -6,7 +6,8 @@
 #include "server/CommandServer.h"
 
 
-CommandHandler::CommandHandler(IdUserMap* id_umap, NickUserMap* nick_umap, UserIdGenerator* idgen) {
+CommandHandler::CommandHandler(IdUserMap* id_umap, NickUserMap* nick_umap,
+                               UserIdGenerator* idgen) {
     this->id_umap = id_umap;
     this->nick_umap = nick_umap;
     this->idgen = idgen;
@@ -20,7 +21,8 @@ CommandHandler::~CommandHandler() {
 }
 
 void CommandHandler::handle(CmdPkg* pkg, Session* session) {
-    LOG_DEBUG("CMD_PKG, type: " << (int)pkg->getType() << ", length: " << pkg->getLen() << ", data: " << pkg->getData());
+    LOG_DEBUG("CMD_PKG, type: " << (int)pkg->getType() << ", length: "
+              << pkg->getLen() << ", data: " << pkg->getData());
 
     switch (pkg->getType()) {
         case CmdPkg::REGISTER_NICK:
@@ -154,7 +156,8 @@ void CommandHandler::addBuddies(CmdPkg* pkg, Session* session) {
         CmdPkg* pkg_ids = new CmdPkg(CmdPkg::BUDDIES_IDS, ids_pkg_len);
         std::map<int, char*>::const_iterator end = ids_map.end();
         int offset = 0;
-        for (std::map<int, char*>::const_iterator it = ids_map.begin(); it != end; ++it) {
+        std::map<int, char*>::const_iterator it;
+        for (it = ids_map.begin(); it != end; ++it) {
             int id = it->first;
             char* nick = it->second;
             pkg_ids->setInt(offset, id);
@@ -174,7 +177,7 @@ void CommandHandler::removeBuddies(CmdPkg* pkg, Session* session) {
     User* usr = session->user;
 
     if (usr == NULL) {
-        LOG_WARN("Attempt to remove buddies before login: " << *(session->sock));
+        LOG_WARN("Can't remove buddies before login: " << *(session->sock));
         return;
     }
 

@@ -58,7 +58,8 @@ void Socket::Getaddrinfo() throw(SocketException) {
     }
 
     if ((rv = getaddrinfo(host, port, &hints, &servinfo)) != 0) {
-        throw SocketException(std::string("getaddrinfo failed: ") + gai_strerror(rv));
+        throw SocketException(
+            std::string("getaddrinfo failed: ") + gai_strerror(rv));
     }
 }
 
@@ -72,7 +73,8 @@ void Socket::Bind() throw(SocketException) {
 
     // loop through all the results and bind to the first we can
     for(p = servinfo; p != NULL; p = p->ai_next) {
-        if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
+        if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol))
+        == -1) {
             //perror("echolistener: socket");
             continue;
         }
@@ -102,7 +104,8 @@ void Socket::Connect() throw(SocketException) {
 
      // loop through all the results and connect to the first we can
     for(p = servinfo; p != NULL; p = p->ai_next) {
-        if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
+        if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol))
+            == -1) {
             //perror("client: socket");
             continue;
         }
@@ -121,7 +124,8 @@ void Socket::Connect() throw(SocketException) {
     freeaddrinfo(servinfo);
 }
 
-int Socket::Recvfrom(char* buf, int len, struct sockaddr_storage* their_addr) throw(SocketException) {
+int Socket::Recvfrom(char* buf, int len, struct sockaddr_storage* their_addr)
+throw(SocketException) {
     socklen_t addr_len = sizeof *their_addr;
     int n;
     if ((n = recvfrom(sockfd, buf, len, 0,
@@ -132,7 +136,8 @@ int Socket::Recvfrom(char* buf, int len, struct sockaddr_storage* their_addr) th
     return n;
 }
 
-int Socket::Sendto(char* buf, int len, struct sockaddr_storage* their_addr) throw(SocketException) {
+int Socket::Sendto(char* buf, int len, struct sockaddr_storage* their_addr)
+throw(SocketException) {
     socklen_t addr_len = sizeof *their_addr;
     int n;
     if ((n = sendto(sockfd, buf, len, 0,
@@ -207,7 +212,8 @@ Socket* Socket::Accept() throw(SocketException) {
     socklen_t addr_size = sizeof addr;
     int new_fd = accept(sockfd, (struct sockaddr*) &new_addr, &addr_size);
     if (new_fd == -1) {
-        throw SocketException("accept failed, try to check if socket is binded and listening");
+        throw SocketException(
+            "accept failed, try to check if socket is binded and listening");
     }
 
     Socket* new_sock = new Socket(new_fd);
