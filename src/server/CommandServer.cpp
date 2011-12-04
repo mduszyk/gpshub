@@ -221,11 +221,11 @@ void CommandServer::send(EpollEvent* event) {
 
     while (!session->send_queue.empty()) {
         CmdPkg* p = session->send_queue.front();
+        session->send_queue.pop();
         if (!((CommandServer*)session->ptr)->send(session, p)) {
             // stop sending when socket isn't ready any more
             return;
         }
-        session->send_queue.pop();
     }
 
 }
