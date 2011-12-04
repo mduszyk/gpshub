@@ -7,7 +7,6 @@
 #include "socket/Epoll.h"
 #include "thread/SyncMap.h"
 #include "user/User.h"
-#include "server/Session.h"
 
 #define CMDPKG_MAX 512
 
@@ -23,6 +22,9 @@ class CommandServer : public Server {
         static void incomingConnectionClbk(EpollEvent* event);
         static void incomingDataClbk(EpollEvent* event);
         static void closeConnectionClbk(EpollEvent* event);
+        static void sendClbk(EpollEvent* event);
+
+        bool send(Session* s, CmdPkg* p);
 
     private:
         Socket* tcpSocket;
@@ -34,6 +36,7 @@ class CommandServer : public Server {
         void incomingConnection(EpollEvent* event);
         void incomingData(EpollEvent* event);
         void closeConnection(EpollEvent* event);
+        void send(EpollEvent* event);
 
 };
 

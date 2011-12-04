@@ -483,7 +483,7 @@
 	"thread/ScopeLockWr.h"
 	"thread/ScopeLockRd.h"
 
-1318842515 /home/mad/workspace/gpshub/include/user/User.h
+1323007262 /home/mad/workspace/gpshub/include/user/User.h
 	<sys/socket.h>
 	<cstdatomic>
 	"Coordinates.h"
@@ -524,7 +524,7 @@
 
 1317903835 /home/mad/workspace/gpshub/include/server/Server.h
 
-1320755778 source:/home/mad/workspace/gpshub/src/main.cpp
+1322591626 source:/home/mad/workspace/gpshub/src/main.cpp
 	<unistd.h>
 	<getopt.h>
 	<iostream>
@@ -540,14 +540,13 @@
 	"user/UserIdGenerator.h"
 	"log/macros.h"
 
-1321987333 /home/mad/workspace/gpshub/include/server/CommandServer.h
+1323012664 /home/mad/workspace/gpshub/include/server/CommandServer.h
 	"server/Server.h"
 	"server/CommandHandler.h"
 	"socket/Socket.h"
 	"socket/Epoll.h"
 	"thread/SyncMap.h"
 	"user/User.h"
-	"server/Session.h"
 
 1321986597 /home/mad/workspace/gpshub/include/server/CommandHandler.h
 	"user/dstypes.h"
@@ -587,7 +586,7 @@
 	"socket/netutil.h"
 	<string.h>
 
-1321987584 source:/home/mad/workspace/gpshub/src/server/CommandServer.cpp
+1323012797 source:/home/mad/workspace/gpshub/src/server/CommandServer.cpp
 	<iostream>
 	<sys/socket.h>
 	<fcntl.h>
@@ -692,12 +691,13 @@
 	"util/CircularBuffer.h"
 	"stdlib.h"
 
-1320754475 source:/home/mad/workspace/gpshub/src/server/CommandHandler.cpp
+1323013397 source:/home/mad/workspace/gpshub/src/server/CommandHandler.cpp
 	"server/CommandHandler.h"
 	<iostream>
 	<string.h>
 	<time.h>
 	"log/macros.h"
+	"server/CommandServer.h"
 
 1318527324 /home/mad/workspace/gpshub/include/util/log.h
 
@@ -722,8 +722,10 @@
 	"util/CircularBuffer.h"
 	"user/User.h"
 
-1320754050 /home/mad/workspace/gpshub/include/server/Session.h
+1323012605 /home/mad/workspace/gpshub/include/server/Session.h
 	"socket/Socket.h"
 	"util/CircularBuffer.h"
 	"user/User.h"
+	"server/CmdPkg.h"
+	<queue>
 

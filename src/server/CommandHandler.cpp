@@ -3,6 +3,7 @@
 #include <string.h>
 #include <time.h>
 #include "log/macros.h"
+#include "server/CommandServer.h"
 
 
 CommandHandler::CommandHandler(IdUserMap* id_umap, NickUserMap* nick_umap, UserIdGenerator* idgen) {
@@ -48,10 +49,9 @@ void CommandHandler::registerNick(CmdPkg* pkg, Session* session) {
     if (this->nick_umap->count(pkg->getData()) > 0) {
         LOG_DEBUG("Nick taken: " << pkg->getData());
         // send register nick ack with nick taken status
-        CmdPkg pkg_fail(CmdPkg::REGISTER_NICK_ACK, 4);
-        pkg_fail.getData()[0] = 0;
-        // TODO send may return EWOULDBLOCK
-        session->sock->Send(pkg_fail.getBytes(), pkg_fail.getLen());
+        CmdPkg* pkg_fail = new CmdPkg(CmdPkg::REGISTER_NICK_ACK, 4);
+        pkg_fail->getData()[0] = 0;
+        ((CommandServer*)session->ptr)->send(session, pkg_fail);
         return;
     }
 
@@ -60,10 +60,9 @@ void CommandHandler::registerNick(CmdPkg* pkg, Session* session) {
     if (id == 0) {
         LOG_WARN("All user ids are taken");
         // send register nick ack with too many users status
-        CmdPkg pkg_fail(CmdPkg::REGISTER_NICK_ACK, 4);
-        pkg_fail.getData()[0] = 2;
-        // TODO send may return EWOULDBLOCK
-        session->sock->Send(pkg_fail.getBytes(), pkg_fail.getLen());
+        CmdPkg* pkg_fail = new CmdPkg(CmdPkg::REGISTER_NICK_ACK, 4);
+        pkg_fail->getData()[0] = 2;
+        ((CommandServer*)session->ptr)->send(session, pkg_fail);
         return;
     }
 
@@ -87,22 +86,19 @@ void CommandHandler::registerNick(CmdPkg* pkg, Session* session) {
 
 
     // send rgister nick ack with generated id
-    CmdPkg pkg_ok(CmdPkg::REGISTER_NICK_ACK, 8);
-    pkg_ok.getData()[0] = 1;
-    pkg_ok.setInt(1, id);
-    LOG_DEBUG("Sending ACK, len: " << pkg_ok.getLen());
-    // TODO send may return EWOULDBLOCK
-    session->sock->Send(pkg_ok.getBytes(), pkg_ok.getLen());
+    CmdPkg* pkg_ok = new CmdPkg(CmdPkg::REGISTER_NICK_ACK, 8);
+    pkg_ok->getData()[0] = 1;
+    pkg_ok->setInt(1, id);
+    LOG_DEBUG("Sending ACK, len: " << pkg_ok->getLen());
+    ((CommandServer*)session->ptr)->send(session, pkg_ok);
 
     // send init udp request
     int token = rand();
     usr->setToken(token);
-    CmdPkg init_udp(CmdPkg::INITIALIZE_UDP, 7);
-    init_udp.setInt(0, token);
+    CmdPkg* init_udp = new CmdPkg(CmdPkg::INITIALIZE_UDP, 7);
+    init_udp->setInt(0, token);
     LOG_DEBUG("Sending init udp request, token: " << token);
-    // TODO send may return EWOULDBLOCK
-    session->sock->Send(init_udp.getBytes(), init_udp.getLen());
-
+    ((CommandServer*)session->ptr)->send(session, init_udp);
 }
 
 void CommandHandler::addBuddies(CmdPkg* pkg, Session* session) {
@@ -117,9 +113,6 @@ void CommandHandler::addBuddies(CmdPkg* pkg, Session* session) {
     // prepare user id package
     int len_nick = strlen(usr->getNick()) + 1;
     int uid_pkg_len = 3 + sizeof(int) + len_nick;
-    CmdPkg pkg_uid(CmdPkg::BUDDIES_IDS, uid_pkg_len);
-    pkg_uid.setInt(0, usr->getId());
-    pkg_uid.setBytes(sizeof(int), usr->getNick(), len_nick);
 
     // initialize buddies ids map and ids pkg len var
     std::map<int, char*> ids_map;
@@ -143,8 +136,10 @@ void CommandHandler::addBuddies(CmdPkg* pkg, Session* session) {
                 // increase ids pkg len
                 ids_pkg_len += n + 1;
                 // send user's id to buddy
-                // TODO send may return EWOULDBLOCK
-                buddy->getSockPtr()->Send(pkg_uid.getBytes(), pkg_uid.getLen());
+                CmdPkg* pkg_uid = new CmdPkg(CmdPkg::BUDDIES_IDS, uid_pkg_len);
+                pkg_uid->setInt(0, usr->getId());
+                pkg_uid->setBytes(sizeof(int), usr->getNick(), len_nick);
+                ((CommandServer*)session->ptr)->send(session, pkg_uid);
             }
             a = i + 1;
         }
@@ -156,21 +151,20 @@ void CommandHandler::addBuddies(CmdPkg* pkg, Session* session) {
         ids_pkg_len += 3;
         // space for ids
         ids_pkg_len += sizeof(int) * ids_map.size();
-        CmdPkg pkg_ids(CmdPkg::BUDDIES_IDS, ids_pkg_len);
+        CmdPkg* pkg_ids = new CmdPkg(CmdPkg::BUDDIES_IDS, ids_pkg_len);
         std::map<int, char*>::const_iterator end = ids_map.end();
         int offset = 0;
         for (std::map<int, char*>::const_iterator it = ids_map.begin(); it != end; ++it) {
             int id = it->first;
             char* nick = it->second;
-            pkg_ids.setInt(offset, id);
+            pkg_ids->setInt(offset, id);
             offset += sizeof(int);
             int n = strlen(nick) + 1;
-            pkg_ids.setBytes(offset, nick, n);
+            pkg_ids->setBytes(offset, nick, n);
             offset += n;
         }
         // send buddies ids pkg
-        // TODO send may return EWOULDBLOCK
-        session->sock->Send(pkg_ids.getBytes(), pkg_ids.getLen());
+        ((CommandServer*)session->ptr)->send(session, pkg_ids);
     }
 
 }

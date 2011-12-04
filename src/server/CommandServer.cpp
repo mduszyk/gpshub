@@ -108,7 +108,7 @@ void CommandServer::incomingConnection(EpollEvent* event) {
         // make socket non blocking
         new_sock->addFlags(O_NONBLOCK);
 
-        // important to later delete new_event and edata
+        // important to later delete new_event and new_session
         Session* new_session = new Session();
         new_session->ptr = this;
         new_session->sock = new_sock;
@@ -174,6 +174,58 @@ void CommandServer::incomingData(EpollEvent* event) {
             cmdHandler->handle(cmd, session);
             delete cmd;
         }
+    }
+
+}
+
+bool CommandServer::send(Session* s, CmdPkg* p) {
+    try {
+        s->sock->Send(p->getBytes(), p->getLen());
+    } catch(SocketException& e) {
+        if (e.getErrno() != EWOULDBLOCK)
+            throw;
+
+        LOG_DEBUG2("send EWOULDBLOCK: " << *(s->sock));
+
+        s->send_queue.push(p);
+
+        EpollEvent* new_send_event = new EpollEvent();
+        new_send_event->fd = s->sock->getFd();
+        new_send_event->clbk = CommandServer::sendClbk;
+        new_send_event->ptr = s;
+
+        try {
+            epl->addEvent(new_send_event, EPOLLOUT | EPOLLET);
+        } catch (EpollException& e) {
+            delete new_send_event;
+            if (e.getErrno() != EEXIST)
+                throw;
+        }
+
+        return false;
+    }
+
+    delete p;
+    return true;
+}
+
+void CommandServer::sendClbk(EpollEvent* event) {
+    Session* session = (Session*) event->ptr;
+    ((CommandServer*)session->ptr)->send(event);
+}
+
+void CommandServer::send(EpollEvent* event) {
+    Session* session = (Session*) event->ptr;
+
+    epl->removeEvent(event);
+
+    while (!session->send_queue.empty()) {
+        CmdPkg* p = session->send_queue.front();
+        if (!((CommandServer*)session->ptr)->send(session, p)) {
+            // stop sending when socket isn't ready any more
+            return;
+        }
+        session->send_queue.pop();
     }
 
 }

@@ -15,35 +15,53 @@ class User
     public:
         User(int id, char* nick);
         virtual ~User();
+
         int getId();
         char* getNick();
+
+        BuddiesSet& getBuddies();
+
         Coordinates* getSlot1();
         Coordinates* getSlot2();
+
         Coordinates* getEmpty();
         void setEmpty(Coordinates* c);
+
         Coordinates* getReady();
         void setReady(Coordinates* c);
+
+
         sockaddr_storage* getAddrUdpPtr();
         void setAddrUdp(sockaddr_storage addr);
-        BuddiesSet& getBuddies();
+
         bool isUdpReady();
+
         void setSockPtr(Socket* sock);
         Socket* getSockPtr();
+
         int getToken();
         void setToken(int token);
 
     private:
         int id;
         char* nick;
-        int token;
+
         BuddiesSet buddies;
+
         Coordinates* slot1;
         Coordinates* slot2;
+
         Coordinates* empty;
         std::atomic<Coordinates*> ready;
+
+
         sockaddr_storage addr_udp;
         bool udp_ready;
+
         Socket* sock;
+
+        int token;
+
         friend std::ostream& operator<<(std::ostream&, const User&);
 
 };
