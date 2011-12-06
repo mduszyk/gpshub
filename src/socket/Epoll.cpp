@@ -91,6 +91,7 @@ void Epoll::loop() throw(EpollException) {
         }
         for (i = 0; i < n; i++) {
             eev = (EpollEvent*) events[i].data.ptr;
+            eev->events = events[i].events;
             if ((events[i].events & EPOLLERR) ||
                 (events[i].events & EPOLLHUP) ||
                 (events[i].events & EPOLLRDHUP))

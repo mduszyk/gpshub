@@ -729,3 +729,325 @@
 	"server/CmdPkg.h"
 	<queue>
 
+1323016888 source:/home/mad/devl/gpshub/src/hubthread/CoordsBroadcastThread.cpp
+	<iostream>
+	<iterator>
+	<ext/hash_set>
+	"util/hashmaphelper.h"
+	"hubthread/CoordsBroadcastThread.h"
+	"socket/netutil.h"
+	"log/macros.h"
+
+1323016888 /home/mad/devl/gpshub/include/util/hashmaphelper.h
+	<locale>
+	<cstring>
+	<functional>
+
+1323016888 /home/mad/devl/gpshub/include/hubthread/CoordsBroadcastThread.h
+	"thread/Thread.h"
+	"thread/BlockingQueue.h"
+	"user/dstypes.h"
+	"user/User.h"
+	"socket/Socket.h"
+
+1323016888 /home/mad/devl/gpshub/include/thread/Thread.h
+	<pthread.h>
+
+1323016888 /home/mad/devl/gpshub/include/thread/BlockingQueue.h
+	<pthread.h>
+	<queue>
+	"thread/Mutex.h"
+	"thread/ConditionVariable.h"
+
+1323016888 /home/mad/devl/gpshub/include/thread/Mutex.h
+	<pthread.h>
+
+1323016888 /home/mad/devl/gpshub/include/thread/ConditionVariable.h
+	<pthread.h>
+	"thread/ScopeLock.h"
+
+1323016888 /home/mad/devl/gpshub/include/thread/ScopeLock.h
+	"thread/Mutex.h"
+
+1323016888 /home/mad/devl/gpshub/include/user/dstypes.h
+	"thread/SyncHashMap.h"
+	"thread/SyncHashSet.h"
+	"thread/SyncMap.h"
+	"thread/SyncSet.h"
+	"user/User.h"
+	"util/hashmaphelper.h"
+
+1323016888 /home/mad/devl/gpshub/include/thread/SyncHashMap.h
+	<ext/hash_map>
+	"thread/RwLock.h"
+	"thread/ScopeLockWr.h"
+	"thread/ScopeLockRd.h"
+
+1323016888 /home/mad/devl/gpshub/include/thread/RwLock.h
+	<pthread.h>
+
+1323016888 /home/mad/devl/gpshub/include/thread/ScopeLockWr.h
+	"thread/RwLock.h"
+
+1323016888 /home/mad/devl/gpshub/include/thread/ScopeLockRd.h
+	"thread/RwLock.h"
+
+1323016888 /home/mad/devl/gpshub/include/thread/SyncHashSet.h
+	<ext/hash_set>
+	<iterator>
+	"thread/RwLock.h"
+	"thread/ScopeLockWr.h"
+	"thread/ScopeLockRd.h"
+
+1323016888 /home/mad/devl/gpshub/include/thread/SyncMap.h
+	<functional>
+	<map>
+	"thread/RwLock.h"
+	"thread/ScopeLockWr.h"
+	"thread/ScopeLockRd.h"
+
+1323016888 /home/mad/devl/gpshub/include/thread/SyncSet.h
+	<set>
+	"thread/RwLock.h"
+	"thread/ScopeLockWr.h"
+	"thread/ScopeLockRd.h"
+
+1323016888 /home/mad/devl/gpshub/include/user/User.h
+	<sys/socket.h>
+	<cstdatomic>
+	"Coordinates.h"
+	"thread/SyncHashSet.h"
+	"util/hashmaphelper.h"
+	"socket/Socket.h"
+
+1323016888 /home/mad/devl/gpshub/include/user/Coordinates.h
+
+1323016888 /home/mad/devl/gpshub/include/socket/Socket.h
+	"socket/SocketException.h"
+	<netdb.h>
+	<sys/socket.h>
+	<iostream>
+
+1323016888 /home/mad/devl/gpshub/include/socket/SocketException.h
+	<errno.h>
+	<stdexcept>
+
+1323016888 /home/mad/devl/gpshub/include/socket/netutil.h
+	<sys/socket.h>
+
+1323016888 /home/mad/devl/gpshub/include/log/macros.h
+	"log/log.h"
+
+1323016888 /home/mad/devl/gpshub/include/log/log.h
+	<sstream>
+	<string>
+	<stdio.h>
+	<windows.h>
+	<sys/time.h>
+
+1323016888 source:/home/mad/devl/gpshub/src/hubthread/CoordsUpdateThread.cpp
+	"hubthread/CoordsUpdateThread.h"
+
+1323016888 /home/mad/devl/gpshub/include/hubthread/CoordsUpdateThread.h
+	"thread/Thread.h"
+
+1323016888 source:/home/mad/devl/gpshub/src/hubthread/ServerThread.cpp
+	<exception>
+	<iostream>
+	"hubthread/ServerThread.h"
+	"log/macros.h"
+
+1323016888 /home/mad/devl/gpshub/include/hubthread/ServerThread.h
+	"thread/Thread.h"
+	"server/Server.h"
+
+1323016888 /home/mad/devl/gpshub/include/server/Server.h
+
+1323016888 source:/home/mad/devl/gpshub/src/main.cpp
+	<unistd.h>
+	<getopt.h>
+	<iostream>
+	<exception>
+	"server/CommandServer.h"
+	"server/GpsDataServer.h"
+	"hubthread/ServerThread.h"
+	"socket/SocketException.h"
+	"thread/BlockingQueue.h"
+	"hubthread/CoordsBroadcastThread.h"
+	"server/CommandHandler.h"
+	"user/dstypes.h"
+	"user/UserIdGenerator.h"
+	"log/macros.h"
+
+1323197349 /home/mad/devl/gpshub/include/server/CommandServer.h
+	"server/Server.h"
+	"server/CommandHandler.h"
+	"socket/Socket.h"
+	"socket/Epoll.h"
+	"thread/SyncMap.h"
+	"user/User.h"
+
+1323016888 /home/mad/devl/gpshub/include/server/CommandHandler.h
+	"user/dstypes.h"
+	"socket/Epoll.h"
+	"server/CmdPkg.h"
+	"user/User.h"
+	"user/UserIdGenerator.h"
+	"server/Session.h"
+
+1323196483 /home/mad/devl/gpshub/include/socket/Epoll.h
+	"socket/Socket.h"
+	"socket/EpollException.h"
+	"util/CircularBuffer.h"
+	<sys/epoll.h>
+
+1323016888 /home/mad/devl/gpshub/include/socket/EpollException.h
+	<stdexcept>
+	<errno.h>
+
+1323016888 /home/mad/devl/gpshub/include/util/CircularBuffer.h
+
+1323016888 /home/mad/devl/gpshub/include/server/CmdPkg.h
+
+1323016888 /home/mad/devl/gpshub/include/user/UserIdGenerator.h
+	"user/dstypes.h"
+
+1323016888 /home/mad/devl/gpshub/include/server/Session.h
+	"socket/Socket.h"
+	"util/CircularBuffer.h"
+	"user/User.h"
+	"server/CmdPkg.h"
+	<queue>
+
+1323016888 /home/mad/devl/gpshub/include/server/GpsDataServer.h
+	"server/Server.h"
+	"socket/Socket.h"
+	"thread/BlockingQueue.h"
+	"user/dstypes.h"
+	"user/User.h"
+
+1323016888 source:/home/mad/devl/gpshub/src/server/CmdPkg.cpp
+	"server/CmdPkg.h"
+	"stdlib.h"
+	"socket/netutil.h"
+	<string.h>
+
+1323016888 source:/home/mad/devl/gpshub/src/server/CommandHandler.cpp
+	"server/CommandHandler.h"
+	<iostream>
+	<string.h>
+	<time.h>
+	"log/macros.h"
+	"server/CommandServer.h"
+
+1323016888 source:/home/mad/devl/gpshub/src/server/GpsDataServer.cpp
+	<sys/socket.h>
+	<netinet/in.h>
+	<iostream>
+	"server/GpsDataServer.h"
+	"server/CmdPkg.h"
+	"socket/Socket.h"
+	"socket/netutil.h"
+	"log/macros.h"
+
+1323196517 source:/home/mad/devl/gpshub/src/socket/Epoll.cpp
+	"socket/Epoll.h"
+	"socket/EpollException.h"
+	<iostream>
+	"log/macros.h"
+
+1323016888 source:/home/mad/devl/gpshub/src/socket/EpollException.cpp
+	"socket/EpollException.h"
+
+1323016888 source:/home/mad/devl/gpshub/src/socket/Socket.cpp
+	"socket/Socket.h"
+	"socket/SocketException.h"
+	<fcntl.h>
+	<sys/types.h>
+	<sys/socket.h>
+	<netdb.h>
+	<string.h>
+	<arpa/inet.h>
+	<netinet/in.h>
+
+1323016888 source:/home/mad/devl/gpshub/src/socket/SocketException.cpp
+	"socket/SocketException.h"
+
+1323016888 source:/home/mad/devl/gpshub/src/socket/netutil.cpp
+	"socket/netutil.h"
+	<netinet/in.h>
+	<arpa/inet.h>
+	<stdio.h>
+	<string.h>
+
+1323016888 source:/home/mad/devl/gpshub/src/thread/ConditionVariable.cpp
+	"thread/ConditionVariable.h"
+	"thread/ThreadSyncException.h"
+
+1323016888 /home/mad/devl/gpshub/include/thread/ThreadSyncException.h
+	"thread/ThreadException.h"
+
+1323016888 /home/mad/devl/gpshub/include/thread/ThreadException.h
+	<stdexcept>
+
+1323016888 source:/home/mad/devl/gpshub/src/thread/Mutex.cpp
+	"thread/Mutex.h"
+	"thread/ThreadSyncException.h"
+
+1323016888 source:/home/mad/devl/gpshub/src/thread/RwLock.cpp
+	"thread/RwLock.h"
+	"thread/ThreadSyncException.h"
+
+1323016888 source:/home/mad/devl/gpshub/src/thread/ScopeLock.cpp
+	"thread/ScopeLock.h"
+
+1323016888 source:/home/mad/devl/gpshub/src/thread/ScopeLockRd.cpp
+	"thread/ScopeLockRd.h"
+
+1323016888 source:/home/mad/devl/gpshub/src/thread/ScopeLockWr.cpp
+	"thread/ScopeLockWr.h"
+
+1323016888 source:/home/mad/devl/gpshub/src/thread/SyncHashMap.cpp
+
+1323016888 source:/home/mad/devl/gpshub/src/thread/SyncHashSet.cpp
+
+1323016888 source:/home/mad/devl/gpshub/src/thread/SyncMap.cpp
+
+1323016888 source:/home/mad/devl/gpshub/src/thread/SyncSet.cpp
+
+1323016888 source:/home/mad/devl/gpshub/src/thread/Thread.cpp
+	"thread/Thread.h"
+	"thread/ThreadException.h"
+
+1323016888 source:/home/mad/devl/gpshub/src/thread/ThreadException.cpp
+	"thread/ThreadException.h"
+
+1323016888 source:/home/mad/devl/gpshub/src/thread/ThreadSyncException.cpp
+	"thread/ThreadSyncException.h"
+
+1323016888 source:/home/mad/devl/gpshub/src/user/User.cpp
+	<stdio.h>
+	"user/User.h"
+
+1323016888 source:/home/mad/devl/gpshub/src/user/UserIdGenerator.cpp
+	"user/UserIdGenerator.h"
+	"limits.h"
+
+1323016888 source:/home/mad/devl/gpshub/src/util/CircularBuffer.cpp
+	"util/CircularBuffer.h"
+	"stdlib.h"
+
+1323196943 source:/home/mad/devl/gpshub/src/server/CommandServer.cpp
+	<iostream>
+	<sys/socket.h>
+	<fcntl.h>
+	"server/CommandServer.h"
+	"socket/Socket.h"
+	"socket/SocketException.h"
+	"socket/Epoll.h"
+	"socket/netutil.h"
+	"user/User.h"
+	"util/CircularBuffer.h"
+	"server/CmdPkg.h"
+	"log/macros.h"
+

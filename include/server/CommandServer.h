@@ -20,11 +20,10 @@ class CommandServer : public Server {
         void stop();
 
         static void incomingConnectionClbk(EpollEvent* event);
-        static void incomingDataClbk(EpollEvent* event);
+        static void clientSocketClbk(EpollEvent* event);
         static void closeConnectionClbk(EpollEvent* event);
-        static void sendClbk(EpollEvent* event);
 
-        bool send(Session* s, CmdPkg* p);
+        void send(Session* s, CmdPkg* p);
 
     private:
         Socket* tcpSocket;

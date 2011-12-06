@@ -67,9 +67,14 @@ void CommandServer::incomingConnectionClbk(EpollEvent* event) {
     ((CommandServer*)session->ptr)->incomingConnection(event);
 }
 
-void CommandServer::incomingDataClbk(EpollEvent* event) {
+void CommandServer::clientSocketClbk(EpollEvent* event) {
     Session* session = (Session*) event->ptr;
-    ((CommandServer*)session->ptr)->incomingData(event);
+    // EPOLLOUT event happens so try to send waiting packages (if there are any)
+    if (event->events & EPOLLOUT)
+        ((CommandServer*)session->ptr)->send(event);
+    // EPOLLIN event happens so read incomming data
+    if (event->events & EPOLLIN)
+        ((CommandServer*)session->ptr)->incomingData(event);
 }
 
 void CommandServer::closeConnectionClbk(EpollEvent* event) {
@@ -116,10 +121,12 @@ void CommandServer::incomingConnection(EpollEvent* event) {
 
         EpollEvent* new_event = new EpollEvent();
         new_event->fd = new_sock->getFd();
-        new_event->clbk = CommandServer::incomingDataClbk;
+        new_event->clbk = CommandServer::clientSocketClbk;
         new_event->ptr = new_session;
 
-        epl->addEvent(new_event, EPOLLIN | EPOLLET | EPOLLRDHUP);
+        // add client socket event to epoll, monitor for incomming data and
+        // for readines for sending without blocking
+        epl->addEvent(new_event, EPOLLIN | EPOLLOUT | EPOLLET | EPOLLRDHUP);
     }
 }
 
@@ -178,56 +185,43 @@ void CommandServer::incomingData(EpollEvent* event) {
 
 }
 
-bool CommandServer::send(Session* s, CmdPkg* p) {
+/**
+    Public method used to send pkg to client. It takes intoo account
+    possibility that sending might throw exception when operation would block.
+*/
+void CommandServer::send(Session* s, CmdPkg* p) {
     try {
         s->sock->Send(p->getBytes(), p->getLen());
+        delete p;
     } catch(SocketException& e) {
         if (e.getErrno() != EWOULDBLOCK)
             throw;
-
-        LOG_DEBUG2("send EWOULDBLOCK: " << *(s->sock));
-
+        // if send trows exception with EWOULDBLOCK errno, add pkg to send queue
         s->send_queue.push(p);
-
-        EpollEvent* new_send_event = new EpollEvent();
-        new_send_event->fd = s->sock->getFd();
-        new_send_event->clbk = CommandServer::sendClbk;
-        new_send_event->ptr = s;
-
-        try {
-            epl->addEvent(new_send_event, EPOLLOUT | EPOLLET);
-        } catch (EpollException& e) {
-            delete new_send_event;
-            if (e.getErrno() != EEXIST)
-                throw;
-        }
-
-        return false;
     }
-
-    delete p;
-    return true;
 }
 
-void CommandServer::sendClbk(EpollEvent* event) {
-    Session* session = (Session*) event->ptr;
-    ((CommandServer*)session->ptr)->send(event);
-}
-
+/**
+   This method is invoked by client socket callback when it is possible to send
+   without blocking (EPOLLOUT event). It tries to send each pkg from send_queue
+   for specific session. If sending would return EWOULDBLOCK it finishes leaving
+   pkg which was couse of it on queue.
+*/
 void CommandServer::send(EpollEvent* event) {
-    Session* session = (Session*) event->ptr;
-
-    epl->removeEvent(event);
-
-    while (!session->send_queue.empty()) {
-        CmdPkg* p = session->send_queue.front();
-        session->send_queue.pop();
-        if (!((CommandServer*)session->ptr)->send(session, p)) {
-            // stop sending when socket isn't ready any more
+    Session* s = (Session*) event->ptr;
+    while (!s->send_queue.empty()) {
+        CmdPkg* p = s->send_queue.front();
+        try {
+            s->sock->Send(p->getBytes(), p->getLen());
+            // if still here, sending succeeded so clean up
+            s->send_queue.pop();
+            delete p;
+        } catch(SocketException& e) {
+            if (e.getErrno() != EWOULDBLOCK)
+                throw;
             return;
         }
     }
-
 }
 
 void CommandServer::closeConnection(EpollEvent* event) {

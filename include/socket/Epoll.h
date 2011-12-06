@@ -11,6 +11,7 @@ struct EpollEvent {
     int fd;
     void* ptr;
     void (*clbk)(EpollEvent*);
+    uint32_t events;
 };
 
 class Epoll {
