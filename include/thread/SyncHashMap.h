@@ -1,7 +1,7 @@
 #ifndef SYNCHASHMAP_H
 #define SYNCHASHMAP_H
 
-#include <ext/hash_map>
+#include <unordered_map>
 #include "thread/RwLock.h"
 #include "thread/ScopeLockWr.h"
 #include "thread/ScopeLockRd.h"
@@ -18,7 +18,7 @@ class SyncHashMap {
         void erase(Key key);
 
     private:
-        __gnu_cxx::hash_map<Key, Data, Hash, Equal> map;
+        std::unordered_map<Key, Data, Hash, Equal> map;
         RwLock mlock;
 };
 

@@ -13,7 +13,8 @@
 class CoordsBroadcastThread : public Thread {
 
     public:
-        CoordsBroadcastThread(IdUserMap* id_umap, NickUserMap* nick_umap, BlockingQueue<int>* uqueue, Socket* udpSocket);
+        CoordsBroadcastThread(IdUserMap* id_umap, NickUserMap* nick_umap,
+                              BlockingQueue<int>* uqueue, Socket* udpSocket);
         virtual ~CoordsBroadcastThread();
         void run();
 

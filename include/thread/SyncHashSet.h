@@ -1,7 +1,7 @@
 #ifndef SYNCHASHSET_H
 #define SYNCHASHSET_H
 
-#include <ext/hash_set>
+#include <unordered_set>
 #include <iterator>
 #include "thread/RwLock.h"
 #include "thread/ScopeLockWr.h"
@@ -18,10 +18,10 @@ class SyncHashSet {
         void erase(Item item);
         int count(Item item);
         RwLock& getLock();
-        __gnu_cxx::hash_set<Item, Hash, Equal>& getSet();
+        std::unordered_set<Item, Hash, Equal>& getSet();
 
     private:
-        __gnu_cxx::hash_set<Item, Hash, Equal> set;
+        std::unordered_set<Item, Hash, Equal> set;
         RwLock mlock;
 
 };
@@ -60,7 +60,8 @@ void SyncHashSet<Item, Hash, Equal>::erase(Item item) {
 }
 
 template<class Item, class Hash, class Equal>
-__gnu_cxx::hash_set<Item, Hash, Equal>& SyncHashSet<Item, Hash, Equal>::getSet() {
+std::unordered_set<Item, Hash, Equal>&
+SyncHashSet<Item, Hash, Equal>::getSet() {
     return set;
 }
 

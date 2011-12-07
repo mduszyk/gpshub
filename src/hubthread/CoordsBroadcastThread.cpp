@@ -1,6 +1,6 @@
 #include <iostream>
 #include <iterator>
-#include <ext/hash_set>
+#include <unordered_set>
 #include "util/hashmaphelper.h"
 #include "hubthread/CoordsBroadcastThread.h"
 #include "socket/netutil.h"
@@ -57,10 +57,11 @@ void CoordsBroadcastThread::broadcast(User* u, Coordinates* coords) {
     BuddiesSet buddies = u->getBuddies();
     ScopeLockRd readlock(buddies.getLock());
 
-    __gnu_cxx::hash_set<char*, StrHash, StrEqual>::iterator end = buddies.getSet().end();
+    std::unordered_set<char*, StrHash, StrEqual>::iterator end = buddies.getSet().end();
 
     int pkg_len;
-    for (__gnu_cxx::hash_set<char*, StrHash, StrEqual>::iterator nick = buddies.getSet().begin(); nick != end; ++nick) {
+    std::unordered_set<char*, StrHash, StrEqual>::iterator nick;
+    for (nick = buddies.getSet().begin(); nick != end; ++nick) {
         if (nick_umap->count(*nick) > 0) {
 
             User* buddy = nick_umap->get(*nick);
