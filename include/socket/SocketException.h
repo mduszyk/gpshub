@@ -7,7 +7,7 @@
 class SocketException : public std::runtime_error {
 
     public:
-        SocketException(char* message);
+        SocketException(const char* message);
         SocketException(const std::string& message);
         int getErrno();
 

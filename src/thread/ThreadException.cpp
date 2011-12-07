@@ -1,6 +1,6 @@
 #include "thread/ThreadException.h"
 
-ThreadException::ThreadException(char* message) : std::runtime_error(message) {
+ThreadException::ThreadException(const char* message) : std::runtime_error(message) {
     //ctor
 }
 

@@ -6,7 +6,7 @@
 class ThreadException : public std::runtime_error {
 
     public:
-        ThreadException(char* message);
+        ThreadException(const char* message);
         ThreadException(const std::string& message);
 
 };

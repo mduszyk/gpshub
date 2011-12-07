@@ -7,7 +7,7 @@
 class EpollException : public std::runtime_error {
 
     public:
-        EpollException(char* message);
+        EpollException(const char* message);
         EpollException(const std::string& message);
         int getErrno();
 

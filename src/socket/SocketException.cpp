@@ -1,6 +1,6 @@
 #include "socket/SocketException.h"
 
-SocketException::SocketException(char* message)  : std::runtime_error(message) {
+SocketException::SocketException(const char* message)  : std::runtime_error(message) {
     this->Errno = errno;
 }
 

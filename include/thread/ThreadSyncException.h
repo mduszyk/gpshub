@@ -6,7 +6,7 @@
 class ThreadSyncException : public ThreadException
 {
     public:
-        ThreadSyncException(char* message);
+        ThreadSyncException(const char* message);
         ThreadSyncException(const std::string& message);
 
 };
