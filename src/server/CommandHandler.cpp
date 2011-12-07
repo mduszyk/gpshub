@@ -123,7 +123,7 @@ void CommandHandler::addBuddies(CmdPkg* pkg, Session* session) {
     // add each buddy to user's
     char* data = pkg->getData();
     int a = 0;
-    for (int i = 0; i < strlen(data) + 1; i++) {
+    for (unsigned int i = 0; i < strlen(data) + 1; i++) {
         if (data[i] == ',' || data[i] == '\0') {
             int n = i - a;
             if (n == 0) continue;
@@ -183,7 +183,7 @@ void CommandHandler::removeBuddies(CmdPkg* pkg, Session* session) {
 
     char* data = pkg->getData();
     int a = 0;
-    for (int i = 0; i < strlen(data) + 1; i++) {
+    for (unsigned int i = 0; i < strlen(data) + 1; i++) {
         if (data[i] == ',' || data[i] == '\0') {
             int n = i - a;
             char* nick = new char(n + 1);

@@ -20,7 +20,7 @@ Socket::Socket(int sfd) {
     Creates socket object by host and port,
     socket is going to be open when Bind or Connect is invoked.
 */
-Socket::Socket(char* host, char* port, int socktype) {
+Socket::Socket(const char* host, const char* port, int socktype) {
     this->host = NULL;
     this->port = NULL;
     if (host != NULL) {

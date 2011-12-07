@@ -9,7 +9,7 @@
 class Socket
 {
     public:
-        Socket(char* host, char* port, int socktype);
+        Socket(const char* host, const char* port, int socktype);
         virtual ~Socket();
         void Bind() throw(SocketException);
         void Listen() throw(SocketException);

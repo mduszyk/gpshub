@@ -10,7 +10,8 @@
 class GpsDataServer : public Server {
 
     public:
-        GpsDataServer(char* port, IdUserMap* umap, BlockingQueue<int>* uqueue);
+        GpsDataServer(const char* port, IdUserMap* umap,
+                      BlockingQueue<int>* uqueue);
         virtual ~GpsDataServer();
         void loop();
         void stop();

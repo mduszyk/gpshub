@@ -13,7 +13,8 @@
 class CommandServer : public Server {
 
     public:
-        CommandServer(char* port, IdUserMap* umap, CommandHandler* cmdHandler);
+        CommandServer(const char* port, IdUserMap* umap,
+                      CommandHandler* cmdHandler);
         virtual ~CommandServer();
 
         void loop();

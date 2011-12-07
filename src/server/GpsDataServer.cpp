@@ -8,7 +8,7 @@
 #include "log/macros.h"
 
 
-GpsDataServer::GpsDataServer(char* port, IdUserMap* umap,
+GpsDataServer::GpsDataServer(const char* port, IdUserMap* umap,
                              BlockingQueue<int>* uqueue) {
     udpSocket = new Socket(NULL, port, SOCK_DGRAM);
     this->umap = umap;

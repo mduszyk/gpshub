@@ -26,15 +26,15 @@
 
 void print_help(char* argv[]);
 void print_version();
-void start_gpshub(char* port_cmd, char* port_gps, int num_thread);
+void start_gpshub(const char* port_cmd, const char* port_gps, int num_thread);
 //void register_signal_handlers();
 //void handle_stop(int signo);
 
 int main(int argc, char *argv[]) {
-    char* port_cmd = DEFAULT_TCP;
-    char* port_gps = DEFAULT_UDP;
-    char* log_level = DEFAULT_LOG_LEVEL;
-    char* log_file = DEFAULT_LOG_FILE;
+    const char* port_cmd = DEFAULT_TCP;
+    const char* port_gps = DEFAULT_UDP;
+    const char* log_level = DEFAULT_LOG_LEVEL;
+    const char* log_file = DEFAULT_LOG_FILE;
     int thread_num = DEFAULT_THREAD_NUM;
 
     static struct option long_options[] = {
@@ -152,7 +152,7 @@ CommandServer* global_cmdsrv;
 GpsDataServer* global_gpssrv;
 std::vector<CoordsBroadcastThread>* global_bthreads;
 
-void start_gpshub(char* port_cmd, char* port_gps, int thread_num) {
+void start_gpshub(const char* port_cmd, const char* port_gps, int thread_num) {
     LOG_INFO("Starting gpshub...");
 
     // id user map: id -> user

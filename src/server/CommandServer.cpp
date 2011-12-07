@@ -11,7 +11,7 @@
 #include "server/CmdPkg.h"
 #include "log/macros.h"
 
-CommandServer::CommandServer(char* port, IdUserMap* umap,
+CommandServer::CommandServer(const char* port, IdUserMap* umap,
                              CommandHandler* cmdHandler) {
     tcpSocket = new Socket(NULL, port, SOCK_STREAM);
     this->umap = umap;
