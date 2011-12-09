@@ -35,9 +35,11 @@ class GpshubClient():
         self.cmd_channel.register_nick(self.nick)
         
     def _connect_gps_channel(self):
-        self.gps_channel = GpsChannel(self.host, self.port_gps, self.userid)
+        self.gps_channel = GpsChannel(
+            self.host, self.port_gps, self.userid)
         
-        self.gps_listener = GpsChannelListener(self.gps_channel, self.nick)
+        self.gps_listener = GpsChannelListener(
+            self.gps_channel, self.nick)
         self.gps_listener.daemon = True
         self.gps_listener.add_observer(self._handle_gps_pkg)
         self.gps_listener.start()

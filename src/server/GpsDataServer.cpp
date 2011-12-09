@@ -87,6 +87,7 @@ void GpsDataServer::initAddrUdp() {
 void GpsDataServer::sendUdpInitAck(User* u, char status) {
     CmdPkg ack(CmdPkg::INITIALIZE_UDP_ACK, 4);
     ack.getData()[0] = status;
+    // TODO send may return EWOULDBLOCK
     u->getSockPtr()->Send(ack.getBytes(), ack.getLen());
 }
 

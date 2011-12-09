@@ -12,8 +12,6 @@ class GpsChannel:
         self.uid = bytes(c_uint32(socket.htonl(self.userid)))
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.connect((self.host, self.port))
-        # default timeout in secs
-        #self.sock.settimeout(1.0)
     
     def init_udp(self, token):
         tkn = bytes(c_uint32(socket.htonl(token)))

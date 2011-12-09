@@ -51,7 +51,8 @@ int main(int argc, char *argv[]) {
     int option_index = 0;
 
     int opt;
-    while((opt = getopt_long(argc, argv, "t:u:l:f:n:vh", long_options, &option_index)) != -1)
+    while((opt = getopt_long(argc, argv, "t:u:l:f:n:vh", long_options,
+                            &option_index)) != -1)
         switch(opt) {
             case 't':
                 port_cmd = optarg;
@@ -127,7 +128,8 @@ void print_help(char* argv[]) {
     printf("      accepted values: stdout, stderr, filename\n\n");
 
     printf("  -n, --thread-number\n");
-    printf("      set number of consumer threads, default: %d\n", DEFAULT_THREAD_NUM);
+    printf("      set number of consumer threads, default: %d\n",
+           DEFAULT_THREAD_NUM);
     printf("      accepted values grather than 0\n\n");
 
     printf("  -v, --version\n");
@@ -171,10 +173,12 @@ void start_gpshub(const char* port_cmd, const char* port_gps, int thread_num) {
 
     ServerThread sthread(&gpssrv);
 
-    //CoordsBroadcastThread bthread(&id_umap, &nick_umap, &uqueue, gpssrv.getUdpSocket());
+    //CoordsBroadcastThread bthread(&id_umap, &nick_umap, &uqueue,
+    //                      gpssrv.getUdpSocket());
     //bthread.start();
     std::vector<CoordsBroadcastThread> bthreads(thread_num,
-        CoordsBroadcastThread(&id_umap, &nick_umap, &uqueue, gpssrv.getUdpSocket()));
+        CoordsBroadcastThread(&id_umap, &nick_umap, &uqueue,
+                              gpssrv.getUdpSocket()));
 
     //global_cmdsrv = &cmdsrv;
     //global_gpssrv = &gpssrv;

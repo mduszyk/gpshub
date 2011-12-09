@@ -21,8 +21,6 @@ class CmdChannel:
         self.port = port
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.connect((self.host, self.port))
-        # default timeout in secs
-        #self.sock.settimeout(1.0)
         
     def _send(self, pkg_type, data):
         data_bytes = bytes(data, 'utf-8')
@@ -57,9 +55,9 @@ class CmdChannel:
         return None
     
     def __decode_pkg(self, pkg):
-        {CmdChannel.REGISTER_NICK_ACK: self.__decode_nick_ack,
-         CmdChannel.BUDDIES_IDS: self.__decode_buddies_ids,
-         CmdChannel.INITIALIZE_UDP: self.__decode_initialize_udp,
+        {CmdChannel.REGISTER_NICK_ACK:  self.__decode_nick_ack,
+         CmdChannel.BUDDIES_IDS:        self.__decode_buddies_ids,
+         CmdChannel.INITIALIZE_UDP:     self.__decode_initialize_udp,
          CmdChannel.INITIALIZE_UDP_ACK: self.__decode_initialize_udp_ack,
         }.get(pkg['type'], self.__unknown_pkg)(pkg)
 
@@ -78,13 +76,15 @@ class CmdChannel:
         buddies = dict();
         data_len = pkg['len'] - 3
         while offset < data_len:
-            uid = struct.unpack('!I', pkg['data'][offset : offset + 4])[0]
+            uid = struct.unpack('!I', 
+                pkg['data'][offset : offset + 4])[0]
             offset += 4
             i = offset
             while i < data_len and pkg['data'][i] != 0:
                 i += 1
             n = i - offset
-            buddy = str(struct.unpack('!' + str(n) + 's', pkg['data'][offset:i])[0], 'latin1')
+            buddy = str(struct.unpack('!' + str(n) + 's',
+                pkg['data'][offset:i])[0], 'latin1')
             offset = i + 1
             buddies[uid] = buddy
         pkg['buddies'] = buddies

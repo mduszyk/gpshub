@@ -54,7 +54,8 @@ def read_gps_nmea(file_name):
             a = line.split(',')
             if len(a[3]) > 0 and len(a[5]) > 0:
                 # yield (longitude, latitude)
-                yield (int(a[5].replace('.', '')),  int(a[3].replace('.', '')))
+                yield (int(a[5].replace('.', '')),  
+                    int(a[3].replace('.', '')))
 
 def read_gps_simple(file_name):
     fd = open(file_name, 'r')
