@@ -3,6 +3,7 @@
 #include <iostream>
 #include <exception>
 
+#include "ComponentRegistry.h"
 #include "server/CommandServer.h"
 #include "server/GpsDataServer.h"
 #include "hubthread/ServerThread.h"
@@ -167,6 +168,9 @@ void start_gpshub(const char* port_cmd, const char* port_gps, int thread_num) {
     CommandHandler cmdHandler(&id_umap, &nick_umap, &idgen);
     CommandServer cmdsrv(port_cmd, &id_umap, &cmdHandler);
     GpsDataServer gpssrv(port_gps, &id_umap, &uqueue);
+
+    ComponentRegistry::setCommandServer(&cmdsrv);
+    ComponentRegistry::setGpsDataServer(&gpssrv);
 
     ServerThread sthread(&gpssrv);
 

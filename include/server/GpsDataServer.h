@@ -6,6 +6,7 @@
 #include "thread/BlockingQueue.h"
 #include "user/dstypes.h"
 #include "user/User.h"
+#include "socket/Epoll.h"
 
 class GpsDataServer : public Server {
 
@@ -17,10 +18,13 @@ class GpsDataServer : public Server {
         void stop();
         Socket* getUdpSocket();
 
+        static void timeoutClbk();
+        static void incomingDataClbk(EpollEvent* event);
+
     private:
         static const int BUF_LEN = 128;
-
         Socket* udpSocket;
+        Epoll* epl;
         IdUserMap* umap;
         BlockingQueue<int>* uqueue;
         bool listen;
@@ -30,6 +34,9 @@ class GpsDataServer : public Server {
         void processCoordinates();
         void initAddrUdp();
         void sendUdpInitAck(User* u, char status);
+
+        void incomingData(EpollEvent* event);
+        void sendPendingAck();
 
 };
 

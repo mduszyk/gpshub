@@ -1,15 +1,18 @@
 #include <iostream>
 #include <sys/socket.h>
 #include <fcntl.h>
-#include "server/CommandServer.h"
+
+#include "log/macros.h"
 #include "socket/Socket.h"
 #include "socket/SocketException.h"
 #include "socket/Epoll.h"
 #include "socket/netutil.h"
-#include "user/User.h"
 #include "util/CircularBuffer.h"
+#include "ComponentRegistry.h"
+#include "server/CommandServer.h"
 #include "server/CmdPkg.h"
-#include "log/macros.h"
+#include "user/User.h"
+
 
 CommandServer::CommandServer(const char* port, IdUserMap* umap,
                              CommandHandler* cmdHandler) {
@@ -34,14 +37,9 @@ void CommandServer::loop() {
     epl = new Epoll();
     epl->setEndEventClbk(CommandServer::closeConnectionClbk);
 
-    Session* server_session = new Session();
-    server_session->ptr = this;
-    //server_session->sock = tcpSocket;
-
     EpollEvent* server_event = new EpollEvent();
     server_event->fd = tcpSocket->getFd();
     server_event->clbk = CommandServer::incomingConnectionClbk;
-    server_event->ptr = server_session;
 
     /* Monitor server socket for incomming connections in edge triggered mode
        EPOLLIN - the associated file is available for read
@@ -57,30 +55,27 @@ void CommandServer::loop() {
 
     delete epl;
     delete server_event;
-    delete server_session;
 
     LOG_INFO("CommandServer end");
 }
 
 void CommandServer::incomingConnectionClbk(EpollEvent* event) {
-    Session* session = (Session*) event->ptr;
-    ((CommandServer*)session->ptr)->incomingConnection(event);
+    ComponentRegistry::getCommandServer()->incomingConnection(event);
 }
 
 void CommandServer::clientSocketClbk(EpollEvent* event) {
-    Session* session = (Session*) event->ptr;
     // EPOLLOUT event happens so try to send waiting packages (if there are any)
     if (event->events & EPOLLOUT)
-        ((CommandServer*)session->ptr)->send(event);
+        ComponentRegistry::getCommandServer()->send(event);
     // EPOLLIN event happens so read incomming data
     if (event->events & EPOLLIN)
-        ((CommandServer*)session->ptr)->incomingData(event);
+        ComponentRegistry::getCommandServer()->incomingData(event);
 }
 
 void CommandServer::closeConnectionClbk(EpollEvent* event) {
     Session* session = (Session*) event->ptr;
     LOG_DEBUG("Peer closing connection: " << *(session->sock));
-    ((CommandServer*)session->ptr)->closeConnection(event);
+    ComponentRegistry::getCommandServer()->closeConnection(event);
 }
 
 /**
@@ -115,7 +110,6 @@ void CommandServer::incomingConnection(EpollEvent* event) {
 
         // important to later delete new_event and new_session
         Session* new_session = new Session();
-        new_session->ptr = this;
         new_session->sock = new_sock;
         new_session->buf = new CircularBuffer(CMDPKG_MAX * 2);
 

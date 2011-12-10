@@ -6,6 +6,7 @@
 #include "socket/Socket.h"
 #include "socket/netutil.h"
 #include "log/macros.h"
+#include "ComponentRegistry.h"
 
 
 GpsDataServer::GpsDataServer(const char* port, IdUserMap* umap,
@@ -29,17 +30,55 @@ void GpsDataServer::loop() {
 
     udpSocket->Bind();
 
-    while(listen) {
-        n = udpSocket->Recvfrom(buf, BUF_LEN, &their_addr);
+    // epoll will monitor only one descriptor
+    // so pass 1 as events list size grow delta
+    epl = new Epoll(1);
+    epl->setTimeout(3000);
+    epl->setTimeoutClbk(GpsDataServer::timeoutClbk);
 
-        if (n == 12 || n == 16)
-            processCoordinates();
-        else if (n == 8)
-            initAddrUdp();
+    EpollEvent* server_event = new EpollEvent();
+    server_event->fd = udpSocket->getFd();
+    server_event->clbk = GpsDataServer::incomingDataClbk;
 
+    /* Monitor server socket for incomming connections in edge triggered mode
+       EPOLLIN - the associated file is available for read
+       EPOLLET - sets  the  Edge  Triggered  behavior */
+    epl->addEvent(server_event, EPOLLIN | EPOLLET);
+
+    try {
+        epl->loop();
+    } catch (EpollException& e) {
+        LOG_ERROR("Epoll loop error: " << e.what() << ": "
+                  << strerror(e.getErrno()));
     }
 
+    delete epl;
+    delete server_event;
+
     LOG_INFO("GPS data server finished working");
+}
+
+void GpsDataServer::sendPendingAck() {
+
+}
+
+void GpsDataServer::timeoutClbk() {
+    ComponentRegistry::getGpsDataServer()->sendPendingAck();
+}
+
+void GpsDataServer::incomingDataClbk(EpollEvent* event) {
+    ComponentRegistry::getGpsDataServer()->incomingData(event);
+}
+
+void GpsDataServer::incomingData(EpollEvent* event) {
+    n = udpSocket->Recvfrom(buf, BUF_LEN, &their_addr);
+
+    if (n == 12 || n == 16)
+        processCoordinates();
+    else if (n == 8)
+        initAddrUdp();
+
+    sendPendingAck();
 }
 
 /**
@@ -87,6 +126,7 @@ void GpsDataServer::sendUdpInitAck(User* u, char status) {
     CmdPkg ack(CmdPkg::INITIALIZE_UDP_ACK, 4);
     ack.getData()[0] = status;
     // TODO send may return EWOULDBLOCK
+
     u->getSockPtr()->Send(ack.getBytes(), ack.getLen());
 }
 
@@ -149,3 +189,4 @@ void GpsDataServer::stop() {
     // TODO
     //udpSocket->Close();
 }
+

@@ -4,6 +4,7 @@
 #include <time.h>
 #include "log/macros.h"
 #include "server/CommandServer.h"
+#include "ComponentRegistry.h"
 
 
 CommandHandler::CommandHandler(IdUserMap* id_umap, NickUserMap* nick_umap,
@@ -53,7 +54,7 @@ void CommandHandler::registerNick(CmdPkg* pkg, Session* session) {
         // send register nick ack with nick taken status
         CmdPkg* pkg_fail = new CmdPkg(CmdPkg::REGISTER_NICK_ACK, 4);
         pkg_fail->getData()[0] = 0;
-        ((CommandServer*)session->ptr)->send(session, pkg_fail);
+        ComponentRegistry::getCommandServer()->send(session, pkg_fail);
         return;
     }
 
@@ -64,7 +65,7 @@ void CommandHandler::registerNick(CmdPkg* pkg, Session* session) {
         // send register nick ack with too many users status
         CmdPkg* pkg_fail = new CmdPkg(CmdPkg::REGISTER_NICK_ACK, 4);
         pkg_fail->getData()[0] = 2;
-        ((CommandServer*)session->ptr)->send(session, pkg_fail);
+        ComponentRegistry::getCommandServer()->send(session, pkg_fail);
         return;
     }
 
@@ -92,7 +93,7 @@ void CommandHandler::registerNick(CmdPkg* pkg, Session* session) {
     pkg_ok->getData()[0] = 1;
     pkg_ok->setInt(1, id);
     LOG_DEBUG("Sending ACK, len: " << pkg_ok->getLen());
-    ((CommandServer*)session->ptr)->send(session, pkg_ok);
+    ComponentRegistry::getCommandServer()->send(session, pkg_ok);
 
     // send init udp request
     int token = rand();
@@ -100,7 +101,7 @@ void CommandHandler::registerNick(CmdPkg* pkg, Session* session) {
     CmdPkg* init_udp = new CmdPkg(CmdPkg::INITIALIZE_UDP, 7);
     init_udp->setInt(0, token);
     LOG_DEBUG("Sending init udp request, token: " << token);
-    ((CommandServer*)session->ptr)->send(session, init_udp);
+    ComponentRegistry::getCommandServer()->send(session, init_udp);
 }
 
 void CommandHandler::addBuddies(CmdPkg* pkg, Session* session) {
@@ -141,7 +142,7 @@ void CommandHandler::addBuddies(CmdPkg* pkg, Session* session) {
                 CmdPkg* pkg_uid = new CmdPkg(CmdPkg::BUDDIES_IDS, uid_pkg_len);
                 pkg_uid->setInt(0, usr->getId());
                 pkg_uid->setBytes(sizeof(int), usr->getNick(), len_nick);
-                ((CommandServer*)session->ptr)->send(session, pkg_uid);
+                ComponentRegistry::getCommandServer()->send(session, pkg_uid);
             }
             a = i + 1;
         }
@@ -167,7 +168,7 @@ void CommandHandler::addBuddies(CmdPkg* pkg, Session* session) {
             offset += n;
         }
         // send buddies ids pkg
-        ((CommandServer*)session->ptr)->send(session, pkg_ids);
+        ComponentRegistry::getCommandServer()->send(session, pkg_ids);
     }
 
 }
