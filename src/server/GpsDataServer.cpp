@@ -33,7 +33,7 @@ void GpsDataServer::loop() {
     // epoll will monitor only one descriptor
     // so pass 1 as events list size grow delta
     epl = new Epoll(1);
-    epl->setTimeout(3000);
+    epl->setTimeout(10000);
     epl->setTimeoutClbk(GpsDataServer::timeoutClbk);
 
     EpollEvent* server_event = new EpollEvent();
@@ -58,12 +58,8 @@ void GpsDataServer::loop() {
     LOG_INFO("GPS data server finished working");
 }
 
-void GpsDataServer::sendPendingAck() {
-
-}
-
 void GpsDataServer::timeoutClbk() {
-    ComponentRegistry::getGpsDataServer()->sendPendingAck();
+    ComponentRegistry::getGpsDataServer()->sendPendingCmd();
 }
 
 void GpsDataServer::incomingDataClbk(EpollEvent* event) {
@@ -78,7 +74,7 @@ void GpsDataServer::incomingData(EpollEvent* event) {
     else if (n == 8)
         initAddrUdp();
 
-    sendPendingAck();
+    sendPendingCmd();
 }
 
 /**
@@ -123,11 +119,36 @@ void GpsDataServer::initAddrUdp() {
 }
 
 void GpsDataServer::sendUdpInitAck(User* u, char status) {
-    CmdPkg ack(CmdPkg::INITIALIZE_UDP_ACK, 4);
-    ack.getData()[0] = status;
-    // TODO send may return EWOULDBLOCK
+    CmdPkg* ack = new CmdPkg(CmdPkg::INITIALIZE_UDP_ACK, 4);
+    ack->getData()[0] = status;
+    try {
+        u->getSockPtr()->Send(ack->getBytes(), ack->getLen());
+        delete ack;
+    } catch(SocketException& e) {
+        if (e.getErrno() != EWOULDBLOCK)
+            throw;
+        // if send trows exception with EWOULDBLOCK errno, add pkg to send queue
+        PendingCmd* pcmd = new PendingCmd();
+        pcmd->cmd = ack;
+        pcmd->sock = u->getSockPtr();
+        pending_cmd_queue.push(pcmd);
+    }
+}
 
-    u->getSockPtr()->Send(ack.getBytes(), ack.getLen());
+void GpsDataServer::sendPendingCmd() {
+    while (!pending_cmd_queue.empty()) {
+        PendingCmd* pcmd = pending_cmd_queue.front();
+        try {
+            pcmd->sock->Send(pcmd->cmd->getBytes(), pcmd->cmd->getLen());
+            // if still here, sending succeeded so clean up
+            pending_cmd_queue.pop();
+            delete pcmd;
+        } catch(SocketException& e) {
+            if (e.getErrno() != EWOULDBLOCK)
+                throw;
+            return;
+        }
+    }
 }
 
 /**

@@ -918,8 +918,9 @@
 	"server/CmdPkg.h"
 	<queue>
 
-1323552739 /home/mad/devl/gpshub/include/server/GpsDataServer.h
+1323556763 /home/mad/devl/gpshub/include/server/GpsDataServer.h
 	"server/Server.h"
+	"server/CmdPkg.h"
 	"socket/Socket.h"
 	"thread/BlockingQueue.h"
 	"user/dstypes.h"

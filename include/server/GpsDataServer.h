@@ -2,11 +2,17 @@
 #define GPSDATASERVER_H
 
 #include "server/Server.h"
+#include "server/CmdPkg.h"
 #include "socket/Socket.h"
 #include "thread/BlockingQueue.h"
 #include "user/dstypes.h"
 #include "user/User.h"
 #include "socket/Epoll.h"
+
+struct PendingCmd {
+    CmdPkg* cmd;
+    Socket* sock;
+};
 
 class GpsDataServer : public Server {
 
@@ -36,7 +42,9 @@ class GpsDataServer : public Server {
         void sendUdpInitAck(User* u, char status);
 
         void incomingData(EpollEvent* event);
-        void sendPendingAck();
+
+        std::queue<PendingCmd*> pending_cmd_queue;
+        void sendPendingCmd();
 
 };
 
