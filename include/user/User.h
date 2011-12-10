@@ -54,10 +54,10 @@ class User
         Coordinates* empty;
         std::atomic<Coordinates*> ready;
 
-
+        // TODO move to Session
         sockaddr_storage addr_udp;
         bool udp_ready;
-
+        // TODO move to session
         Socket* sock;
 
         int token;
