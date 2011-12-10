@@ -812,7 +812,7 @@
 	"thread/ScopeLockWr.h"
 	"thread/ScopeLockRd.h"
 
-1323016888 /home/mad/devl/gpshub/include/user/User.h
+1323530220 /home/mad/devl/gpshub/include/user/User.h
 	<sys/socket.h>
 	<cstdatomic>
 	"Coordinates.h"
@@ -863,7 +863,7 @@
 
 1323016888 /home/mad/devl/gpshub/include/server/Server.h
 
-1323457268 source:/home/mad/devl/gpshub/src/main.cpp
+1323514461 source:/home/mad/devl/gpshub/src/main.cpp
 	<unistd.h>
 	<getopt.h>
 	<iostream>
@@ -879,13 +879,11 @@
 	"user/UserIdGenerator.h"
 	"log/macros.h"
 
-1323282420 /home/mad/devl/gpshub/include/server/CommandServer.h
+1323545162 /home/mad/devl/gpshub/include/server/CommandServer.h
 	"server/Server.h"
 	"server/CommandHandler.h"
 	"socket/Socket.h"
 	"socket/Epoll.h"
-	"thread/SyncMap.h"
-	"user/User.h"
 
 1323016888 /home/mad/devl/gpshub/include/server/CommandHandler.h
 	"user/dstypes.h"
@@ -895,7 +893,7 @@
 	"user/UserIdGenerator.h"
 	"server/Session.h"
 
-1323196483 /home/mad/devl/gpshub/include/socket/Epoll.h
+1323547476 /home/mad/devl/gpshub/include/socket/Epoll.h
 	"socket/Socket.h"
 	"socket/EpollException.h"
 	"util/CircularBuffer.h"
@@ -912,7 +910,7 @@
 1323016888 /home/mad/devl/gpshub/include/user/UserIdGenerator.h
 	"user/dstypes.h"
 
-1323016888 /home/mad/devl/gpshub/include/server/Session.h
+1323530247 /home/mad/devl/gpshub/include/server/Session.h
 	"socket/Socket.h"
 	"util/CircularBuffer.h"
 	"user/User.h"
@@ -940,7 +938,7 @@
 	"log/macros.h"
 	"server/CommandServer.h"
 
-1323376137 source:/home/mad/devl/gpshub/src/server/GpsDataServer.cpp
+1323545223 source:/home/mad/devl/gpshub/src/server/GpsDataServer.cpp
 	<sys/socket.h>
 	<netinet/in.h>
 	<iostream>
@@ -1037,7 +1035,7 @@
 	"util/CircularBuffer.h"
 	"stdlib.h"
 
-1323282441 source:/home/mad/devl/gpshub/src/server/CommandServer.cpp
+1323528319 source:/home/mad/devl/gpshub/src/server/CommandServer.cpp
 	<iostream>
 	<sys/socket.h>
 	<fcntl.h>

@@ -5,19 +5,19 @@
 
 
 Epoll::Epoll() {
-    efd = epoll_create1(0);
-    if (efd == -1) {
-        throw EpollException("failed to create epoll fd");
-    }
-
     _loop = true;
+    timeout = -1;
+    edelta = DEFAULT_EDELTA;
 
-    events_size = edelta;
-    events = (epoll_event*) malloc(events_size * (sizeof event));
+    init();
+}
 
-    nevents = 0;
+Epoll::Epoll(int edelta) {
+    _loop = true;
+    timeout = -1;
+    this->edelta = edelta;
 
-    initStopPipe();
+    init();
 }
 
 Epoll::~Epoll() {
@@ -26,6 +26,19 @@ Epoll::~Epoll() {
     close(efd);
     close(stop_pipe[0]);
     close(stop_pipe[1]);
+}
+
+void Epoll::init() {
+    efd = epoll_create1(0);
+    if (efd == -1) {
+        throw EpollException("failed to create epoll fd");
+    }
+
+    events_size = edelta;
+    events = (epoll_event*) malloc(events_size * (sizeof event));
+    nevents = 0;
+
+    initStopPipe();
 }
 
 void Epoll::initStopPipe() throw(EpollException) {
@@ -85,9 +98,13 @@ void Epoll::loop() throw(EpollException) {
 
     while(_loop) {
 
-        n = epoll_wait(efd, events, events_size, -1);
+        n = epoll_wait(efd, events, events_size, timeout);
         if (n == -1) {
             throw EpollException("error waiting for event");
+        }
+        if (n == 0 && timeout_clbk != NULL) {
+            timeout_clbk();
+            continue;
         }
         for (i = 0; i < n; i++) {
             eev = (EpollEvent*) events[i].data.ptr;

@@ -32,11 +32,10 @@ void GpsDataServer::loop() {
     while(listen) {
         n = udpSocket->Recvfrom(buf, BUF_LEN, &their_addr);
 
-        if (n == 8)
-            initAddrUdp();
-
         if (n == 12 || n == 16)
             processCoordinates();
+        else if (n == 8)
+            initAddrUdp();
 
     }
 

@@ -5,8 +5,6 @@
 #include "server/CommandHandler.h"
 #include "socket/Socket.h"
 #include "socket/Epoll.h"
-#include "thread/SyncMap.h"
-#include "user/User.h"
 
 #define CMDPKG_MAX 512
 
