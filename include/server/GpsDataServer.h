@@ -1,6 +1,7 @@
 #ifndef GPSDATASERVER_H
 #define GPSDATASERVER_H
 
+#include <list>
 #include "server/Server.h"
 #include "server/CmdPkg.h"
 #include "socket/Socket.h"
@@ -43,7 +44,7 @@ class GpsDataServer : public Server {
 
         void incomingData(EpollEvent* event);
 
-        std::queue<PendingCmd*> pending_cmd_queue;
+        std::list<PendingCmd*> pending_cmd_queue;
         void sendPendingCmd();
 
 };

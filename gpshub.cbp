@@ -44,6 +44,7 @@
 		<Linker>
 			<Add library="pthread" />
 		</Linker>
+		<Unit filename="include/ComponentRegistry.h" />
 		<Unit filename="include/hubthread/CoordsBroadcastThread.h" />
 		<Unit filename="include/hubthread/CoordsUpdateThread.h" />
 		<Unit filename="include/hubthread/ServerThread.h" />
@@ -82,6 +83,7 @@
 		<Unit filename="include/util/hashmaphelper.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
+		<Unit filename="src/ComponentRegistry.cpp" />
 		<Unit filename="src/hubthread/CoordsBroadcastThread.cpp" />
 		<Unit filename="src/hubthread/CoordsUpdateThread.cpp" />
 		<Unit filename="src/hubthread/ServerThread.cpp" />

@@ -33,14 +33,15 @@ void GpsDataServer::loop() {
     // epoll will monitor only one descriptor
     // so pass 1 as events list size grow delta
     epl = new Epoll(1);
-    epl->setTimeout(10000);
+    // set timeout to 5 sec
+    epl->setTimeout(5000);
     epl->setTimeoutClbk(GpsDataServer::timeoutClbk);
 
     EpollEvent* server_event = new EpollEvent();
     server_event->fd = udpSocket->getFd();
     server_event->clbk = GpsDataServer::incomingDataClbk;
 
-    /* Monitor server socket for incomming connections in edge triggered mode
+    /* Monitor server socket for incomming data in edge triggered mode
        EPOLLIN - the associated file is available for read
        EPOLLET - sets  the  Edge  Triggered  behavior */
     epl->addEvent(server_event, EPOLLIN | EPOLLET);
@@ -131,22 +132,25 @@ void GpsDataServer::sendUdpInitAck(User* u, char status) {
         PendingCmd* pcmd = new PendingCmd();
         pcmd->cmd = ack;
         pcmd->sock = u->getSockPtr();
-        pending_cmd_queue.push(pcmd);
+        pending_cmd_queue.push_back(pcmd);
     }
 }
 
 void GpsDataServer::sendPendingCmd() {
-    while (!pending_cmd_queue.empty()) {
-        PendingCmd* pcmd = pending_cmd_queue.front();
-        try {
-            pcmd->sock->Send(pcmd->cmd->getBytes(), pcmd->cmd->getLen());
-            // if still here, sending succeeded so clean up
-            pending_cmd_queue.pop();
-            delete pcmd;
-        } catch(SocketException& e) {
-            if (e.getErrno() != EWOULDBLOCK)
-                throw;
-            return;
+    if(!pending_cmd_queue.empty()) {
+        std::list<PendingCmd*>::iterator it = pending_cmd_queue.begin();
+        std::list<PendingCmd*>::iterator end = pending_cmd_queue.end();
+        while (it != end) {
+            try {
+                PendingCmd* pcmd = *it;
+                pcmd->sock->Send(pcmd->cmd->getBytes(), pcmd->cmd->getLen());
+                delete pcmd;
+                it = pending_cmd_queue.erase(it);
+            } catch(SocketException& e) {
+                if (e.getErrno() != EWOULDBLOCK)
+                    throw;
+                it++;
+            }
         }
     }
 }
