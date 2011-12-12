@@ -9,6 +9,7 @@ BINARY = gpshub
 .SUFFIXES: .o .cpp
 
 OBJECTS = \
+src/ComponentRegistry.o \
 src/hubthread/CoordsBroadcastThread.o \
 src/hubthread/CoordsUpdateThread.o \
 src/hubthread/ServerThread.o \

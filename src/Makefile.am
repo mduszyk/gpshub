@@ -24,6 +24,7 @@ bin_PROGRAMS = gpshub
 # header files (.h) do not result in object files by themselves, but will be
 # included in distribution archives of the project.
 gpshub_SOURCES = \
+ComponentRegistry.cpp \
 hubthread/CoordsBroadcastThread.cpp \
 hubthread/CoordsUpdateThread.cpp \
 hubthread/ServerThread.cpp \
