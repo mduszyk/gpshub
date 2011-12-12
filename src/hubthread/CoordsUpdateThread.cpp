@@ -1,11 +1,5 @@
 #include "hubthread/CoordsUpdateThread.h"
 
-CoordsUpdateThread::CoordsUpdateThread()
-{
-    //ctor
-}
+CoordsUpdateThread::CoordsUpdateThread() {}
 
-CoordsUpdateThread::~CoordsUpdateThread()
-{
-    //dtor
-}
+CoordsUpdateThread::~CoordsUpdateThread() {}

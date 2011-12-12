@@ -5,13 +5,10 @@
 
 
 ServerThread::ServerThread(Server* srv) {
-    //ctor
     this->srv = srv;
 }
 
-ServerThread::~ServerThread() {
-    //dtor
-}
+ServerThread::~ServerThread() {}
 
 void ServerThread::run() {
     try {

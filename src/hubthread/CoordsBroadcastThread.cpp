@@ -7,12 +7,14 @@
 #include "log/macros.h"
 
 
-CoordsBroadcastThread::CoordsBroadcastThread(IdUserMap* id_umap, NickUserMap* nick_umap, BlockingQueue<int>* uqueue, Socket* udpSocket) {
+CoordsBroadcastThread::CoordsBroadcastThread(IdUserMap* id_umap,
+        NickUserMap* nick_umap, BlockingQueue<int>* uqueue, Socket* udpSocket) {
     this->id_umap = id_umap;
     this->nick_umap = nick_umap;
     this->uqueue = uqueue;
     this->udpSocket = udpSocket;
-    // this way of creating buffer causes problems (later segmentation fault), but why?
+    // this way of creating buffer causes problems
+    // (later segmentation fault), but why?
     //buf = (char*) malloc(16);
 }
 
@@ -40,8 +42,9 @@ void CoordsBroadcastThread::run() {
             broadcast(u, &coordsCopy);
 
             /* Important to set ready to NULL after broadcasting, because
-               until ready is NULL GpsDataServer won't add notifications to queue.
-               Thanks to that id of particular user can by on queue only once at time. */
+               until ready is NULL GpsDataServer won't add notifications
+               to the queue. Thanks to that id of particular user can by
+               on queue only once at time. */
             u->setReady(NULL);
         } else {
             LOG_DEBUG("Got null coords");
@@ -57,7 +60,8 @@ void CoordsBroadcastThread::broadcast(User* u, Coordinates* coords) {
     BuddiesSet buddies = u->getBuddies();
     ScopeLockRd readlock(buddies.getLock());
 
-    std::unordered_set<char*, StrHash, StrEqual>::iterator end = buddies.getSet().end();
+    std::unordered_set<char*, StrHash, StrEqual>::iterator end =
+        buddies.getSet().end();
 
     int pkg_len;
     std::unordered_set<char*, StrHash, StrEqual>::iterator nick;

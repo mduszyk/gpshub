@@ -67,7 +67,8 @@ int main(int argc, char *argv[]) {
             case 'n':
                 thread_num = atoi(optarg);
                 if (thread_num < 1) {
-                    fprintf(stderr, "ERROR: Invalid thread number parameter: '%s'\n", optarg);
+                    fprintf(stderr, "ERROR: Invalid thread number parameter: "
+                        "'%s'\n", optarg);
                     print_help(argv);
                 }
                 break;
@@ -111,7 +112,8 @@ int main(int argc, char *argv[]) {
 
 void print_help(char* argv[]) {
     printf("Usage:\n");
-    printf("%s [-t TCP_PORT] [-u UDP_PORT] [-l LOG_LEVEL] [-f LOG_FILE] [-n THREAD_NUMBER] [-v] [-h]\n\n", argv[0]);
+    printf("%s [-t TCP_PORT] [-u UDP_PORT] [-l LOG_LEVEL] [-f LOG_FILE] "
+        "[-n THREAD_NUMBER] [-v] [-h]\n\n", argv[0]);
 
     printf("  -t, --tcp\n");
     printf("      set tcp port, default: %s\n", DEFAULT_TCP);
@@ -120,7 +122,8 @@ void print_help(char* argv[]) {
 
     printf("  -l, --log-level\n");
     printf("      set log level, default: %s\n", DEFAULT_LOG_LEVEL);
-    printf("      available levels: ERROR, WARNING, INFO, DEBUG, DEBUG1, DEBUG2\n");
+    printf("      available levels: "
+        "ERROR, WARNING, INFO, DEBUG, DEBUG1, DEBUG2\n");
     printf("  -f, --log-file\n");
     printf("      set log output file, default: %s\n", DEFAULT_LOG_FILE);
     printf("      accepted values: stdout, stderr, filename\n\n");

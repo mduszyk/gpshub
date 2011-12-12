@@ -1,5 +1,5 @@
-#ifndef UTIL_H
-#define UTIL_H
+#ifndef NETUTIL_H
+#define NETUTIL_H
 
 #include <sys/socket.h>
 
@@ -27,4 +27,4 @@ void ip_printable(struct sockaddr_storage* addr, char* out_buf);
 
 void socket_printable(struct sockaddr_storage* addr, char* out_buf);
 
-#endif // UTIL_H
+#endif // NETUTIL_H

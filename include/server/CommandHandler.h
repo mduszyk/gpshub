@@ -12,7 +12,8 @@
 class CommandHandler {
 
     public:
-        CommandHandler(IdUserMap* id_umap, NickUserMap* nick_umap, UserIdGenerator* idgen);
+        CommandHandler(IdUserMap* id_umap, NickUserMap* nick_umap,
+            UserIdGenerator* idgen);
         virtual ~CommandHandler();
         void handle(CmdPkg* pkg, Session* event);
         void quit(User* u);
