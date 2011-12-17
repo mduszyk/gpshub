@@ -234,6 +234,5 @@ void handle_stop(int signo) {
     ComponentRegistry::getCommandServer()->stop();
     //ComponentRegistry::getGpsDataServer()->stop();
 
-    //sleep(15);
     LOG_INFO("bye");
 }
