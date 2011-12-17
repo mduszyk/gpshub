@@ -225,12 +225,9 @@ void register_signal_handlers(struct sigaction* sigint_handler,
 void handle_stop(int signo) {
     LOG_INFO("Stopping on signal: " << sys_siglist[signo]);
 
-    //global_cmdsrv->stop();
-    //global_gpssrv;
-    //global_bthreads;
     ComponentRegistry::getCommandServer()->stop();
     //ComponentRegistry::getGpsDataServer()->stop();
 
     //sleep(15);
-    //LOG_INFO("bye");
+    LOG_INFO("bye");
 }
