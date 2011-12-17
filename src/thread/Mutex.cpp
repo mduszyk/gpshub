@@ -46,7 +46,8 @@ void Mutex::lock() {
         //}
         //if (EOWNERTERM == i) {
         //    throw ThreadSyncException("Failed locking mutex, EOWNERTERM: "
-        //        "thread terminated the holding of the mutex, and the mutex is an ownerterm mutex type");
+        //        "thread terminated holding of the mutex, "
+        //        "and the mutex is an ownerterm mutex type");
         //}
         if (EDEADLK == i) {
             throw ThreadSyncException("Failed locking mutex, EDEADLK: "

@@ -26,8 +26,8 @@ class BlockingQueue {
 
 };
 
-// The declarations and definitions of the class template
-// member functions should all be in the same header file.
+/* The declarations and definitions of the class template
+   member functions should all be in the same header file. */
 
 template<class T>
 BlockingQueue<T>::BlockingQueue() {

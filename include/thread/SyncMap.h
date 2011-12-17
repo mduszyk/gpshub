@@ -25,8 +25,8 @@ class SyncMap {
 
 };
 
-// The declarations and definitions of the class template
-// member functions should all be in the same header file.
+/* The declarations and definitions of the class template
+   member functions should all be in the same header file. */
 
 template<class K, class V, class Compare>
 SyncMap<K, V, Compare>::SyncMap() {

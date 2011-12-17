@@ -3,9 +3,9 @@
 
 #include "thread/RwLock.h"
 
-/*
-cpp spuuports RAII instead of finally so locking/unlocking
-is done in constructor/destructor
+/**
+    cpp spupports RAII instead of try/finally so locking/unlocking
+    is done in constructor/destructor
 */
 class ScopeLockRd {
 

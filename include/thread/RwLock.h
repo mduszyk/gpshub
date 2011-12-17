@@ -4,12 +4,12 @@
 #define _MULTI_THREADED
 #include <pthread.h>
 
-/*
-reader/writer lock
-Multiple readers can lock such an object
-without blocking each other, but when a
-single writer acquires the lock it has
-exclusive access to the resource.
+/**
+    reader/writer lock
+    Multiple readers can lock such an object
+    without blocking each other, but when a
+    single writer acquires the lock it has
+    exclusive access to the resource.
 */
 class RwLock {
 

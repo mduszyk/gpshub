@@ -22,8 +22,8 @@ class SyncHashMap {
         RwLock mlock;
 };
 
-// The declarations and definitions of the class template
-// member functions should all be in the same header file.
+/* The declarations and definitions of the class template
+   member functions should all be in the same header file. */
 
 template<class Key, class Data, class Hash, class Equal>
 SyncHashMap<Key, Data, Hash, Equal>::SyncHashMap() {
