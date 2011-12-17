@@ -28,7 +28,8 @@
 void print_help(char* argv[]);
 void print_version();
 void start_gpshub(const char* port_cmd, const char* port_gps, int num_thread);
-void register_signal_handlers();
+void register_signal_handlers(struct sigaction* sigint_handler,
+        struct sigaction* sigusr1_handler);
 void handle_stop(int signo);
 
 
@@ -162,6 +163,9 @@ std::vector<CoordsBroadcastThread>* global_bthreads;
 void start_gpshub(const char* port_cmd, const char* port_gps, int thread_num) {
     LOG_INFO("Starting gpshub...");
 
+    struct sigaction sigint_handler;
+    struct sigaction sigusr1_handler;
+
     // id user map: id -> user
     IdUserMap id_umap;
     // nick user map: nick -> user
@@ -185,7 +189,7 @@ void start_gpshub(const char* port_cmd, const char* port_gps, int thread_num) {
         CoordsBroadcastThread(&id_umap, &nick_umap, &uqueue,
                               gpssrv.getUdpSocket()));
 
-    register_signal_handlers();
+    register_signal_handlers(&sigint_handler, &sigusr1_handler);
 
     // start broadcasting threads
     for (int i = 0; i < thread_num; i++) {
@@ -205,17 +209,16 @@ void start_gpshub(const char* port_cmd, const char* port_gps, int thread_num) {
 
 }
 
-void register_signal_handlers() {
+void register_signal_handlers(struct sigaction* sigint_handler,
+        struct sigaction* sigusr1_handler) {
 
-    struct sigaction sigint_handler;
-    sigint_handler.sa_handler = handle_stop;
+    sigint_handler->sa_handler = handle_stop;
     //sigint_handler.sa_handler = SIG_IGN;
-    sigaction(SIGINT, &sigint_handler, NULL);
+    sigaction(SIGINT, sigint_handler, NULL);
 
-    struct sigaction sigusr1_handler;
     //sigusr1_handler.sa_handler = handle_stop;
-    sigint_handler.sa_handler = SIG_IGN;
-    sigaction(SIGUSR1, &sigusr1_handler, NULL);
+    sigint_handler->sa_handler = SIG_IGN;
+    sigaction(SIGUSR1, sigusr1_handler, NULL);
 
 }
 
