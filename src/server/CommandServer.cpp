@@ -241,8 +241,8 @@ void CommandServer::closeConnection(EpollEvent* event) {
 }
 
 void CommandServer::stop() {
-    LOG_INFO("Stopping CommandServer");
-    //epl->stop();
+    LOG_INFO("Stopping command server...");
+    epl->stop();
 
     // TODO cleanup
 

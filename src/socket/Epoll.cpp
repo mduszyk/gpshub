@@ -100,6 +100,10 @@ void Epoll::loop() throw(EpollException) {
 
         n = epoll_wait(efd, events, events_size, timeout);
         if (n == -1) {
+            // continue loop on interrupted system call
+            if (errno == EINTR) {
+                continue;
+            }
             throw EpollException("error waiting for event");
         }
         if (n == 0 && timeout_clbk != NULL) {

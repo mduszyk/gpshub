@@ -34,7 +34,6 @@ class GpsDataServer : public Server {
         Epoll* epl;
         IdUserMap* umap;
         BlockingQueue<int>* uqueue;
-        bool listen;
         char buf[BUF_LEN];
         struct sockaddr_storage their_addr;
         int n;

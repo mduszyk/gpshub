@@ -213,11 +213,11 @@ void register_signal_handlers(struct sigaction* sigint_handler,
         struct sigaction* sigusr1_handler) {
 
     sigint_handler->sa_handler = handle_stop;
-    //sigint_handler.sa_handler = SIG_IGN;
+    //sigint_handler->sa_handler = SIG_IGN;
     sigaction(SIGINT, sigint_handler, NULL);
 
-    //sigusr1_handler.sa_handler = handle_stop;
-    sigint_handler->sa_handler = SIG_IGN;
+    sigusr1_handler->sa_handler = handle_stop;
+    //sigusr1_handler->sa_handler = SIG_IGN;
     sigaction(SIGUSR1, sigusr1_handler, NULL);
 
 }
@@ -228,6 +228,8 @@ void handle_stop(int signo) {
     //global_cmdsrv->stop();
     //global_gpssrv;
     //global_bthreads;
+    ComponentRegistry::getCommandServer()->stop();
+    //ComponentRegistry::getGpsDataServer()->stop();
 
     //sleep(15);
     //LOG_INFO("bye");

@@ -14,7 +14,6 @@ GpsDataServer::GpsDataServer(const char* port, IdUserMap* umap,
     udpSocket = new Socket(NULL, port, SOCK_DGRAM);
     this->umap = umap;
     this->uqueue = uqueue;
-    listen = true;
 }
 
 GpsDataServer::~GpsDataServer() {
@@ -210,7 +209,9 @@ void GpsDataServer::processCoordinates() {
 }
 
 void GpsDataServer::stop() {
-    listen = false;
+    LOG_INFO("Stopping GSP data server...");
+    epl->stop();
+
     // TODO
     //udpSocket->Close();
 }
