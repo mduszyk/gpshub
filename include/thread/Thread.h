@@ -10,11 +10,13 @@ class Thread
       Thread();
       virtual ~Thread();
       void start();
+      void join();
 
    protected:
       virtual void run();
       static void * entryPoint(void*);
       pthread_t threadId;
+      void* retval;
 
 };
 

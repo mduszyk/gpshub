@@ -33,6 +33,13 @@ void Thread::run() {
    // Your code goes here
 }
 
+void Thread::join() {
+    int i;
+    if ((i = pthread_join(threadId, &retval)) != 0) {
+        throw ThreadException("Failed joining thread, error: " + i);
+    }
+}
+
 /* static */
 void* Thread::entryPoint(void * pthis) {
    Thread* t = (Thread*)pthis;

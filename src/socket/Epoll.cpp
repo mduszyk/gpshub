@@ -149,7 +149,7 @@ void Epoll::loop() throw(EpollException) {
 void Epoll::stop() {
     _loop = false;
     // send one byte to stop_pipe, it causes to return from epoll_wait
-    write(stop_pipe[1], "\0", 1);
+//    write(stop_pipe[1], "\0", 1);
 }
 
 void Epoll::setEndEventClbk(void (*end_event_clbk)(EpollEvent*)) {

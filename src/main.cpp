@@ -156,10 +156,6 @@ void print_version() {
     exit(0);
 }
 
-CommandServer* global_cmdsrv;
-GpsDataServer* global_gpssrv;
-std::vector<CoordsBroadcastThread>* global_bthreads;
-
 void start_gpshub(const char* port_cmd, const char* port_gps, int thread_num) {
     LOG_INFO("Starting gpshub...");
 
@@ -190,6 +186,8 @@ void start_gpshub(const char* port_cmd, const char* port_gps, int thread_num) {
         CoordsBroadcastThread(&id_umap, &nick_umap, &uqueue,
                               gpssrv.getUdpSocket()));
 
+    ComponentRegistry::setBroadcastThreads(&bthreads);
+
     register_signal_handlers(&sigint_handler, &sigusr1_handler,
         &sigterm_handler);
 
@@ -207,6 +205,12 @@ void start_gpshub(const char* port_cmd, const char* port_gps, int thread_num) {
     } catch (std::exception& e) {
         LOG_ERROR("Server loop error: " << e.what());
         exit(1);
+    }
+
+    // wait for background threads to terminate
+    sthread.join();
+    for (int i = 0; i < thread_num; i++) {
+        bthreads[i].join();
     }
 
 }
@@ -231,8 +235,13 @@ void register_signal_handlers(struct sigaction* sigint_handler,
 void handle_stop(int signo) {
     LOG_INFO("Stopping on signal: " << sys_siglist[signo]);
 
-    ComponentRegistry::getCommandServer()->stop();
-    //ComponentRegistry::getGpsDataServer()->stop();
+//    ComponentRegistry::getCommandServer()->stop();
+//    ComponentRegistry::getGpsDataServer()->stop();
 
-    LOG_INFO("bye");
+//    int thread_num = ComponentRegistry::getBroadcastThreads()->size();
+//    for (int i = 0; i < thread_num; i++) {
+//        ComponentRegistry::getBroadcastThreads()->at(i).stop();
+//    }
+
+    LOG_DEBUG("bye");
 }

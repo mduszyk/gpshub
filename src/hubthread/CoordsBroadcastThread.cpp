@@ -13,6 +13,7 @@ CoordsBroadcastThread::CoordsBroadcastThread(IdUserMap* id_umap,
     this->nick_umap = nick_umap;
     this->uqueue = uqueue;
     this->udpSocket = udpSocket;
+    loop = true;
     // this way of creating buffer causes problems
     // (later segmentation fault), but why?
     //buf = (char*) malloc(16);
@@ -28,12 +29,12 @@ void CoordsBroadcastThread::run() {
 
     LOG_INFO("Starting broadcasting thread: " << threadId);
 
-    while(true) {
+    while(loop) {
         int id = uqueue->pull();
         u = id_umap->get(id);
-        LOG_DEBUG("Thread: " << threadId << ", pulled user: " << u->getNick());
         if (u == NULL)
             continue;
+        LOG_DEBUG("Thread: " << threadId << ", pulled user: " << u->getNick());
 
         coords = u->getReady();
         if (coords != NULL) {
@@ -88,4 +89,9 @@ void CoordsBroadcastThread::broadcast(User* u, Coordinates* coords) {
         }
     }
 
+}
+
+void CoordsBroadcastThread::stop() {
+    loop = false;
+    uqueue->put(0);
 }

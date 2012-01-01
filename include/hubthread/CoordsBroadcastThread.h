@@ -17,10 +17,11 @@ class CoordsBroadcastThread : public Thread {
                               BlockingQueue<int>* uqueue, Socket* udpSocket);
         virtual ~CoordsBroadcastThread();
         void run();
+        void stop();
 
     private:
         static const int BUF_LEN = 16;
-
+        bool loop;
         BlockingQueue<int>* uqueue;
         IdUserMap* id_umap;
         NickUserMap* nick_umap;
