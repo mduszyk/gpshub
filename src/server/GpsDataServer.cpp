@@ -212,7 +212,6 @@ void GpsDataServer::stop() {
     LOG_INFO("Stopping GSP data server...");
     epl->stop();
 
-    // TODO
-    //udpSocket->Close();
+    udpSocket->Close();
 }
 

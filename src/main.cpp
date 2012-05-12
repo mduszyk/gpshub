@@ -235,13 +235,13 @@ void register_signal_handlers(struct sigaction* sigint_handler,
 void handle_stop(int signo) {
     LOG_INFO("Stopping on signal: " << sys_siglist[signo]);
 
-//    ComponentRegistry::getCommandServer()->stop();
-//    ComponentRegistry::getGpsDataServer()->stop();
+    ComponentRegistry::getCommandServer()->stop();
+    ComponentRegistry::getGpsDataServer()->stop();
 
-//    int thread_num = ComponentRegistry::getBroadcastThreads()->size();
-//    for (int i = 0; i < thread_num; i++) {
-//        ComponentRegistry::getBroadcastThreads()->at(i).stop();
-//    }
+    int thread_num = ComponentRegistry::getBroadcastThreads()->size();
+    for (int i = 0; i < thread_num; i++) {
+        ComponentRegistry::getBroadcastThreads()->at(i).stop();
+    }
 
     LOG_DEBUG("bye");
 }
