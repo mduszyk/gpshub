@@ -7,7 +7,9 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
-
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
 
 /**
     Creates socket object by passing opened socket fd.

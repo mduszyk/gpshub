@@ -2,7 +2,7 @@
 #define USER_H
 
 #include <sys/socket.h>
-#include <cstdatomic>
+#include <atomic>
 #include "Coordinates.h"
 #include "thread/SyncHashSet.h"
 #include "util/hashmaphelper.h"

@@ -2,6 +2,8 @@
 #include "socket/EpollException.h"
 #include <iostream>
 #include "log/macros.h"
+#include <stdlib.h>
+#include <unistd.h>
 
 
 Epoll::Epoll() {
