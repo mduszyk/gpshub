@@ -73,8 +73,8 @@ void CommandServer::clientSocketClbk(EpollEvent* event) {
 }
 
 void CommandServer::closeConnectionClbk(EpollEvent* event) {
-    Session* session = (Session*) event->ptr;
-    LOG_DEBUG("Peer closing connection: " << *(session->sock));
+    //Session* session = (Session*) event->ptr;
+    LOG_DEBUG("Peer closing connection: " << *(((Session*) event->ptr)->sock));
     ComponentRegistry::getCommandServer()->closeConnection(event);
 }
 

@@ -1,5 +1,6 @@
 #include "thread/Thread.h"
 #include "thread/ThreadException.h"
+#include <errno.h>
 
 Thread::Thread() {
     //ctor

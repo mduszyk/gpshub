@@ -1,5 +1,6 @@
 #include "thread/Mutex.h"
 #include "thread/ThreadSyncException.h"
+#include <errno.h>
 
 Mutex::Mutex() {
     int i;
