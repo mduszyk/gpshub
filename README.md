@@ -196,6 +196,6 @@ pkg_type    operation               data_bytes
 105         initialize udp request  int token
 106         ack of initialize udp   char status
 150         buddies ids             int buddyid1 | char* buddy_name1
-```
                                         | ... (byddy_name '\0' terminated) 
+```
  
