@@ -181,17 +181,21 @@ length - package length (with header)
 data_bytes - package data bytes
 
 2. Client -> Server:
+```
 pkg_type    operation       data_bytes
 1           register nick   char* nick
 2           add buddies     char* buddies_names (csv)
 3           remove buddies  char* buddies_names (csv)
+```
 
 3. Server -> Client:
+```
 pkg_type    operation               data_bytes
 101         register nick ack       char status | [int userid]
                                         (userid if success)
 105         initialize udp request  int token
 106         ack of initialize udp   char status
 150         buddies ids             int buddyid1 | char* buddy_name1
+```
                                         | ... (byddy_name '\0' terminated) 
  
