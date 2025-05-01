@@ -1,3 +1,7 @@
+This project implements a lightweight, high-performance server for real-time GPS
+position sharing. Designed for scalability and low latency, it efficiently handles
+high-frequency location updates from multiple clients with minimal overhead.
+
 --------------------------------------------------------------------------------
  1. Gpshub general info
 --------------------------------------------------------------------------------
