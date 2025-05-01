@@ -1,0 +1,197 @@
+# Gpshub
+This project implements a lightweight, high-performance server for real-time GPS
+position sharing. Designed for scalability and low latency, it efficiently handles
+high-frequency location updates from multiple clients with minimal overhead.
+
+## Gpshub general info
+Gpshub is a server written in C++, it allows sharing gps positions between hosts
+connected to the network. Each host declares a list of buddies (other hosts) who
+are allowed to get its position data. Server uses UDP connection for transfering
+gps data what should ensure the smallest possible amount of data transfered. Its
+goal is to enable applications to display real-time positions of other devices. 
+
+```
+            .-----------.
+    .------>|  gpshub   |<-----.
+    |       '-----------'      |
+ .-----.          ^         .-----.
+ | gps |          |         | gps |
+ '-----'          |         '-----'
+               .-----.
+               | gps |
+               '-----'
+```
+
+gps - host which shares position with others, position data come from gps device 
+
+```
+ .------------.             .--------.
+ |   gpshub   |<----TCP-----|  gps   |
+ |            |<----UDP-----|        |
+ '------------'             '--------'
+```
+
+TCP - command channel
+UDP - gps data channel
+
+## Requirements
+- Linux
+- epoll I/O event notification facility - sys/epoll.h since Linux kernel 2.5.44,
+  added to glibc in version 2.3.2
+
+## Usage:
+```
+gpshub [-t TCP_PORT] [-u UDP_PORT] [-l LOG_LEVEL] [-f LOG_FILE]
+       [-n THREAD_NUMBER] [-v] [-h]
+
+  -t, --tcp
+      set tcp port, default: 9990
+  -u, --udp
+      set udp port, default: 9991
+
+  -l, --log-level
+      set log level, default: DEBUG2
+      available levels: ERROR, WARNING, INFO, DEBUG, DEBUG1, DEBUG2
+  -f, --log-file
+      set log output file, default: stdout
+      accepted values: stdout, stderr, filename
+
+  -n, --thread-number
+      set number of consumer threads, default: 1
+      accepted values grather than 0
+
+  -v, --version
+      print version
+
+  -h, --help
+      print this help
+```
+
+## Architecture
+Gpshub consists of two servers:
+ - TCP command server
+ - UDP GPS data server 
+
+Those servers are implemented in one thread each, using non-blocking I/O for
+command server and single UDP loop for GPS data server. This kind of design
+makes better sense if handling single client is short in time, because long
+handling would make other clients to wait for longer period of time.
+
+Command server handles commands which are simple so processing single command
+should be fast. Even if some other client would have to wait a bit longer for
+processing command that's not so bad (or it is assumed not so bad at this stage
+of development).
+
+Gps data server is more critical as it handles most of the whole server's load.
+This is why UDP server socket loop only updates user's position - what is simple,
+it requires only to read GPS data package and update coordinates of user
+identified by id sent in the package. The rest of the job of broadcasting this
+position to user's buddies is moved to other thread (or more than one thred if
+configured). This is why after updating user's position main UDP loop puts user's
+id to blocking queue. Then this id is pulled by Broadcasting thread and position
+is sent to user's buddies. User's id can be on queue only once at a time. 
+
+Below diagram presents gpshub's architecture. Boxes represent main logical
+components, threads are represented in boxes where title is separated from notes.
+Colors are miningless - they are put automatically to this wiki's code block. 
+
+```
+  .--------------------------------.          .------------------------------.
+  |  Command server thread (TCP)   |          | Gps data server thread (UDP) |
+  |--------------------------------|          |------------------------------|
+  | - non-blocking sockets (epoll) |     .----| - UDP socket loop            |
+  | - handle incomming connection  |     |    | - update user position       |
+  | - handle disconnects           |     |    | - put user id to queue       |
+  | - process commands             |     |    '------------------------------'
+  '--------------------------------'     |                    |
+                   |                   update                put
+                 update                  |                    |
+                   |                     |                    |
+                   v                     |                    v
+      .-------------------------.        |         .--------------------.
+      |       Shared data       |        |         |   blocking queue   |
+      | - id to user hash map   |<-------'         '--------------------'
+      | - nick to user hash map |                       ^          ^
+      '-------------------------'                       |          |
+        ^  ^                                            |          |
+        |  |                   .------------pull--------'         pull
+        |  |                   |                                   |
+        |  |                   |                                   |
+        |  |       .----------------------.        .----------------------.
+        |  |       | Broadcast thread #1  | . . .  | Broadcast thread #n  |
+        |  |       |----------------------|        |----------------------|
+        |  '-read--| - broadcast position |        | - broadcast position |
+        |          |                      |        |                      |
+        |          '----------------------'        '----------------------'
+        |                                                      |
+        '------------------------read--------------------------'
+```
+
+## UDP Protocol
+
+### Use case
+- client initializes UDP connection
+- client sends GPS coordinates to the server
+- server sends buddies positions to client 
+
+### Protocol
+1. init package:
+```
+.-----------------.-------------.
+| unsigned int id | int token   |
+'-----------------'-------------'
+```
+
+id - user identifier
+token - token generated by the server (sent through TCP)
+
+2. gps data package:
+
+```
+.-----------------.---------------.--------------.----------------.
+| unsigned int id | int longitude | int latitude | [int altitude] |
+'-----------------'---------------'--------------'----------------'
+```
+
+id - user identifier
+longitude - value > 0 E, value < 0 W
+latitude - value > 0 N, value < 0 S
+altitude - optional, if not sent then altitude is 0
+
+## TCP Prtocol
+
+### Use case
+- client registers nick
+- client sends buddies list, server sends back buddies ids list
+- client adds buddy
+- client removes buddy
+- server sends UDP init request with token
+- server acknowledges UDP init 
+
+### Protocol
+1. General package format:
+```
+.---------------.-----------------------.------------------.
+| char pkg_type | unsigned short length | char* data_bytes |
+'---------------'-----------------------'------------------'
+```
+
+pkg_type - identifies operation
+length - package length (with header)
+data_bytes - package data bytes
+
+2. Client -> Server:
+pkg_type    operation       data_bytes
+1           register nick   char* nick
+2           add buddies     char* buddies_names (csv)
+3           remove buddies  char* buddies_names (csv)
+
+3. Server -> Client:
+pkg_type    operation               data_bytes
+101         register nick ack       char status | [int userid]
+                                        (userid if success)
+105         initialize udp request  int token
+106         ack of initialize udp   char status
+150         buddies ids             int buddyid1 | char* buddy_name1
+                                        | ... (byddy_name '\0' terminated) 
+ 
